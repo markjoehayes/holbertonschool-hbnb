@@ -1,0 +1,31 @@
+
+class Facade {
+    <<Interface>>
+    +getUser()
+    +createUser(data)
+    +updateUser(id, data)
+    +deleteUser(id)
+    +searchPlaces(filters)
+    +getPlace()
+    +createReview()
+    +updateAmenity()
+    +bookPlace(placeId, dates)
+}
+
+class BusinessLogicLayer {
+    <<Layer>>
+    +UserModel
+    +PlaceModel
+    +ReviewModel
+    +AmenityModel
+}
+
+class PersistenceLayer {
+    <<Layer>>
+    +Database(MySQL/PostgreSQL)
+    +FileStorage
+}
+
+PresentationLayer --> Facade : uses
+Facade --> BusinessLogicLayer : delegates to
+BusinessLogicLayer --> PersistenceLayer : persists to
