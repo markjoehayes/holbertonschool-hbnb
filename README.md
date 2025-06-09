@@ -92,6 +92,7 @@ BaseModel serves as the base class for all other models, providing common attrib
 Authors
 
     Mark Joe Hayes - GitHub Profile
+    Giann Pabon
     Holberton School Staff (for curriculum guidance and foundational concepts)
 
 License
