@@ -1,81 +1,52 @@
-```markdown
 # Holberton Airbnb Clone
 
 ## Project Overview
-This project is a foundational clone of the Airbnb web application, developed as part of the Holberton School curriculum. It implements a command-line interpreter (console) for managing Airbnb-related objects like `User`, `Place`, `State`, `City`, `Amenity`, and `Review`.
-
-The project demonstrates proficiency in:
-- Python programming
-- Object-Oriented Programming (OOP)
-- JSON serialization/deserialization
-- Software engineering principles
+Command-line Airbnb clone for managing:
+- `User`, `Place`, `State`, `City`, `Amenity`, `Review`
 
 ## Installation
-1. Clone the repository:
 ```bash
 git clone https://github.com/markjoehayes/holbertonschool-hbnb.git
 cd holbertonschool-hbnb
-```
-
-2. (Optional) Set up a virtual environment:
-```bash
-python3 -m venv venv
+python3 -m venv venv  # Optional
 source venv/bin/activate
-```
 
-## Usage
-### Starting the Console
-```bash
+Usage
+bash
+
 python3 console.py
-```
 
-### Available Commands
-| Command | Description |
-|---------|-------------|
-| `create <class>` | Create new instance |
-| `show <class> <id>` | Show instance details |
-| `destroy <class> <id>` | Delete instance |
-| `all [class]` | List all instances |
-| `update <class> <id> <attr> <value>` | Update instance |
-| `help` | Show commands |
-| `quit` | Exit console |
+Commands
+Command	Example	Description
+create	create User	New instance
+show	show User 123	Display instance
+all	all Place	List objects
+update	update User 123 name "John"	Modify attribute
+destroy	destroy User 123	Delete instance
+Examples
+bash
 
-### Examples
-```bash
-(hbnb) create User
-(hbnb) all User
-(hbnb) show User 1234-1234-1234
-(hbnb) update User 1234-1234-1234 first_name "John"
+(hbnb) create Place
+(hbnb) update Place 456 price 99
+(hbnb) show Place 456
 (hbnb) quit
-```
 
-## File Storage
-- Uses JSON serialization
-- Saves to `file.json` automatically
-- Loads objects on startup
+Structure
+text
 
-## Testing
-Run all tests:
-```bash
+BaseModel → User, Place, State, City, Amenity, Review
+
+Tests
+bash
+
 python3 -m unittest discover tests
-```
 
-## UML Diagram
-```
-BaseModel
-    ↑
-    ├── User
-    ├── State
-    ├── City
-    ├── Amenity
-    ├── Place
-    └── Review
-```
+Authors
 
-## Authors
-- Mark Joe Hayes ([GitHub](https://github.com/markjoehayes))
-- Giann Pabon
+    Mark Joe Hayes
 
-## License
-Educational use as part of Holberton School curriculum.
-```
+    Giann Pabon
+
+License
+
+Holberton School
