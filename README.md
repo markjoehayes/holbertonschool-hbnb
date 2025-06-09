@@ -68,10 +68,9 @@ The console supports the following commands for object management:
     help: Shows a list of available commands and their descriptions.
     quit: Exits the console.
 
-Examples
+## Examples
 
 Here are some common interactions with the console:
-Plaintext
 
 (hbnb) create User
 # A new User instance is created, and its ID is printed
@@ -84,17 +83,18 @@ Plaintext
 (hbnb) quit
 # Exits the console
 
-File Storage
+### File Storage
 
 The project utilizes JSON serialization and deserialization for data persistence. All created objects are automatically saved to a file named file.json when the console exits. Conversely, when the console starts, all objects are loaded from file.json, ensuring data continuity between sessions.
-Testing
+
+### Testing
 
 Comprehensive unit tests are provided to ensure the correctness and robustness of the application's components. To run the test suite, execute the following command from the project root:
 Bash
 
 python3 -m unittest discover tests
 
-UML Diagram
+### UML Diagram
 
 The project's class structure and inheritance hierarchy are as follows:
 
@@ -108,11 +108,12 @@ BaseModel
     └── Review
 
 BaseModel serves as the base class for all other models, providing common attributes and functionalities like id, created_at, and updated_at.
-Authors
+
+### Authors
 
     Mark Joe Hayes - GitHub Profile
-    Holberton School Staff (for curriculum guidance and foundational concepts)
+    Giann Pabon - 
 
-License
+### License
 
 This project is part of the Holberton School curriculum and is provided for educational purposes.
