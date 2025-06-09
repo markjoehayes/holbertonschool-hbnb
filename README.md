@@ -27,43 +27,6 @@ To get a copy of this project up and running on your local machine, follow these
     source venv/bin/activate
     ```
 
-## Usage
-
-### Starting the Console
-
-Once installed, you can start the console by running:
-
-```bash
-python3 console.py
-
-You will see a prompt (hbnb) indicating the console is ready for commands.
-Available Commands
-
-The console supports the following commands for object management:
-
-    create <class>: Creates a new instance of the specified class (e.g., User, Place).
-    show <class> <id>: Displays the string representation of an instance given its class and ID.
-    destroy <class> <id>: Deletes an instance based on its class and ID.
-    all [class]: Lists all instances, or all instances of a specific class if provided.
-    update <class> <id> <attribute_name> <attribute_value>: Updates an attribute of an instance. The attribute_value should be properly quoted if it contains spaces.
-    help: Shows a list of available commands and their descriptions.
-    quit: Exits the console.
-
-Examples
-
-Here are some common interactions with the console:
-Plaintext
-
-(hbnb) create User
-# A new User instance is created, and its ID is printed
-(hbnb) all User
-# Lists all User instances currently in storage
-(hbnb) show User 1234-1234-1234
-# Displays details of the User with the specified ID
-(hbnb) update User 1234-1234-1234 first_name "John"
-# Updates the 'first_name' attribute of the User instance
-(hbnb) quit
-# Exits the console
 
 File Storage
 
