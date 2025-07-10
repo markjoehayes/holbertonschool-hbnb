@@ -9,6 +9,7 @@ class HBnBFacade:
 
     def create_user(self, user_data):
         """Create a new User"""
+        from app.models.user import User
         user = User(**user_data)
         self.user_repo.add(user)
         return user
@@ -42,7 +43,7 @@ class HBnBFacade:
 
     def create_amenity(self, amenity_data):
         """Creates a new amenity"""
-        from models.amenity import Amenity
+        from app.models.amenity import Amenity
         if not amenity_data or 'name' not in amenity_data:
             raise ValueError('Amenity name is required')
 
@@ -68,6 +69,59 @@ class HBnBFacade:
             amenity.name = amenity_data['name']
         self._repo.save(amenity)
         return amenity
+
+    def create_place(self, place_data):
+        """Create a new place with validation"""
+        from app.models.place import Place
+        from models.user import User
+    
+        # Validate required fields
+        required_fields = ['title', 'price', 'latitude', 'longitude', 'owner_id']
+        if not all(field in place_data for field in required_fields):
+            raise ValidationError("Missing required fields")
+    
+        # Validate owner exists
+        owner = self._repo.get(User, place_data['owner_id'])
+        if not owner:
+            raise NotFoundError("Owner not found")
+    
+        # Create and save place
+        new_place = Place(
+            title=place_data['title'],
+            description=place_data.get('description', ''),
+            price=place_data['price'],
+            latitude=place_data['latitude'],
+            longitude=place_data['longitude'],
+            owner_id=place_data['owner_id'],
+            amenities=place_data.get('amenities', [])
+        )
+        self._repo.save(new_place)
+        return new_place
+
+    def get_place(self, place_id):
+        """Get place by ID with relationships"""
+        from models.place import Place
+        place = self._repo.get(Place, place_id)
+        if not place:
+            raise NotFoundError("Place not found")
+        return place
+
+    def get_all_places(self):
+        """Get all places with basic info"""
+        from models.place import Place
+        return self._repo.all(Place)
+
+    def update_place(self, place_id, place_data):
+        """Update existing place"""
+        place = self.get_place(place_id)
+    
+        # Validate and update fields
+        for field, value in place_data.items():
+            if hasattr(place, field):
+                setattr(place, field, value)
+    
+        self._repo.save(place)
+        return place
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):

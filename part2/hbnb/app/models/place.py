@@ -1,16 +1,18 @@
-from models.base_model import BaseModel
+from .BaseClass import BaseModel  
+from .user import User           
+from .amenity import Amenity     
 
 class Place(BaseModel):
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(self, title, description, price, latitude, longitude, owner_id, amenities=None):
         super().__init__()
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
-        self.reviews = []  # List to store related reviews
-        self.amenities = []  # List to store related amenities
+        self.owner_id = owner_id
+        self.reviews = amenities or []  # List to store related reviews
+        self.amenities = amenities if amenities is not None else []  # List to store related amenities
 
     @property
     def title(self):
@@ -53,22 +55,17 @@ class Place(BaseModel):
         self._longitude = float(value)
 
     @property
-    def owner(self):
-        return self._owner
+    def owner_id(self):
+        return self._owneri_id
 
-    @owner.setter
-    def owner(self, value):
-        if not isinstance(value, User):
-            raise ValueError("Owner must be a User instance")
-        self._owner = value
+    @owner_id.setter
+    def owner_id(self, value):
+        if not isinstance(value, str) or not value:
+            raise ValueError("Owner must be a non-empty string")
+        self._owner_id = value
 
-    def add_review(self, review):
-        """Add a review to the place."""
-        if review.place != self:
-            raise ValueError("Review must be for this place")
-        self.reviews.append(review)
 
-    def add_amenity(self, amenity):
+    def add_amenity(self, amenity_id):
         """Add an amenity to the place."""
-        if amenity not in self.amenities:
+        if amenity_id not in self.amenities:
             self.amenities.append(amenity)
