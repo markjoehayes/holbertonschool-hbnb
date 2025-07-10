@@ -37,8 +37,37 @@ class HBnBFacade:
             if existing_user and existing_user.id != user_id:
                 raise ValueError("Email already registered")
 
-            user.update(update_data)
-            return user
+        user.update(update_data)
+        return user
+
+    def create_amenity(self, amenity_data):
+        """Creates a new amenity"""
+        from models.amenity import Amenity
+        if not amenity_data or 'name' not in amenity_data:
+            raise ValueError('Amenity name is required')
+
+        new_amenity = Amenity(**amenity_data)
+        self._repo.save(new_amenity)
+        return new_amenity
+
+    def get_amenity(self, amenity_id):
+        """Retrieves an amenity by ID"""
+        amenity = self._repo.get(Amenity, amenity_id)
+        if not amenity:
+            raise ValueError('Amenity not found')
+        return amenity
+
+    def get_all_amenities(self):
+        """Retrieves all amenities"""
+        return self._repo.all(Amenity)
+
+    def update_amenity(self, amenity_id, amenity_data):
+        """Updates an existing amenity"""
+        amenity = self.get_amenity(amenity_id)
+        if 'name' in amenity_data:
+            amenity.name = amenity_data['name']
+        self._repo.save(amenity)
+        return amenity
 
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
