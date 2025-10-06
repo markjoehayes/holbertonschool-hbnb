@@ -1,0 +1,55 @@
+classDiagram
+    %% Presentation Layer (Services & API)
+    class PresentationLayer {
+        <<Package>>
+        UserService
+        PlaceService
+        ReviewService
+        AmenityService
+        APIGateway
+        +handleRequest()
+        +formatResponse()
+    }
+    
+    %% Business Logic Layer (Models & Core Logic)
+    class BusinessLogicLayer {
+        <<Package>>
+        User
+        Place
+        Review
+        Amenity
+        BookingManager
+        ReviewManager
+        +validateData()
+        +applyBusinessRules()
+        +processOperations()
+    }
+    
+    %% Persistence Layer (Data Access)
+    class PersistenceLayer {
+        <<Package>>
+        UserRepository
+        PlaceRepository
+        ReviewRepository
+        AmenityRepository
+        DatabaseConnector
+        +create()
+        +read()
+        +update()
+        +delete()
+    }
+    
+    %% Facade Pattern Implementation
+    class ApplicationFacade {
+        <<Facade>>
+        +getUser()
+        +createPlace()
+        +addReview()
+        +bookPlace()
+        +searchPlaces()
+    }
+    
+    %% Communication Pathways
+    PresentationLayer --> ApplicationFacade : uses
+    ApplicationFacade --> BusinessLogicLayer : delegates to
+    BusinessLogicLayer --> PersistenceLayer : data operations
