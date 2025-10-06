@@ -1,0 +1,146 @@
+sequenceDiagram
+    participant User as Client
+    participant API as UserService (Presentation)
+    participant Facade as ApplicationFacade
+    participant Business as User (Business Logic)
+    participant Persistence as UserRepository (Persistence)
+    participant DB as Database
+
+    User->>API: POST /api/users/register
+    Note over User,API: {email, password, first_name, last_name}
+    
+    API->>Facade: registerUser(userData)
+    
+    Facade->>Business: validateRegistrationData(userData)
+    Business-->>Facade: validation_result
+    
+    Facade->>Business: createUser(userData)
+    Business->>Business: generateUUID()
+    Business->>Business: hashPassword(password)
+    Business->>Business: setCreatedTimestamp()
+    
+    Business->>Persistence: save(user)
+    Persistence->>DB: INSERT INTO users VALUES (...)
+    DB-->>Persistence: success
+    Persistence-->>Business: saved_user
+    
+    Business->>Business: generateAuthToken()
+    Business-->>Facade: user_with_token
+    
+    Facade-->>API: registration_success
+    API-->>User: 201 Created + user_data + auth_token
+
+sequenceDiagram
+    participant Host as Host Client
+    participant API as PlaceService (Presentation)
+    participant Facade as ApplicationFacade
+    participant Auth as Authentication
+    participant Business as Place (Business Logic)
+    participant UserBL as User (Business Logic)
+    participant Persistence as PlaceRepository (Persistence)
+    participant DB as Database
+
+    Host->>API: POST /api/places
+    Note over Host,API: {title, description, price, location, amenities}
+    Note over Host,API: Authorization: Bearer <token>
+    
+    API->>Auth: validateToken(token)
+    Auth-->>API: user_id
+    
+    API->>Facade: createPlace(user_id, placeData)
+    
+    Facade->>UserBL: getUserById(user_id)
+    UserBL->>UserBL: verifyHostStatus()
+    UserBL-->>Facade: host_user
+    
+    Facade->>Business: createPlace(placeData, host_user)
+    Business->>Business: validatePlaceData()
+    Business->>Business: setGeolocation()
+    Business->>Business: calculateInitialAvailability()
+    
+    Business->>Persistence: save(place)
+    Persistence->>DB: INSERT INTO places VALUES (...)
+    DB-->>Persistence: place_id
+    Persistence->>DB: INSERT INTO place_amenities VALUES (...)
+    DB-->>Persistence: success
+    Persistence-->>Business: saved_place
+    
+    Business-->>Facade: new_place
+    Facade-->>API: creation_success
+    API-->>Host: 201 Created + place_data
+
+
+sequenceDiagram
+    participant Guest as Guest Client
+    participant API as ReviewService (Presentation)
+    participant Facade as ApplicationFacade
+    participant Business as Review (Business Logic)
+    participant PlaceBL as Place (Business Logic)
+    participant BookingBL as Booking (Business Logic)
+    participant Persistence as ReviewRepository (Persistence)
+    participant DB as Database
+
+    Guest->>API: POST /api/places/{place_id}/reviews
+    Note over Guest,API: {rating, comment, place_id}
+    Note over Guest,API: Authorization: Bearer <token>
+    
+    API->>Facade: submitReview(user_id, place_id, reviewData)
+    
+    Facade->>BookingBL: verifyStay(user_id, place_id)
+    BookingBL->>BookingBL: checkCompletedBooking(user_id, place_id)
+    BookingBL-->>Facade: stay_verified
+    
+    Facade->>PlaceBL: getPlaceById(place_id)
+    PlaceBL-->>Facade: place
+    
+    Facade->>Business: createReview(reviewData, user_id, place)
+    Business->>Business: validateRating(1-5)
+    Business->>Business: validateCommentLength()
+    Business->>Business: setVerifiedStay(true)
+    
+    Business->>Persistence: save(review)
+    Persistence->>DB: INSERT INTO reviews VALUES (...)
+    DB-->>Persistence: review_id
+    Persistence->>DB: UPDATE places SET avg_rating = ...
+    DB-->>Persistence: success
+    Persistence-->>Business: saved_review
+    
+    Business-->>Facade: new_review
+    Facade-->>API: submission_success
+    API-->>Guest: 201 Created + review_data
+
+
+
+sequenceDiagram
+    participant User as Client
+    participant API as PlaceService (Presentation)
+    participant Facade as ApplicationFacade
+    participant Business as Place (Business Logic)
+    participant Persistence as PlaceRepository (Persistence)
+    participant DB as Database
+
+    User->>API: GET /api/places?city=Paris&guests=2&amenities=wifi,pool
+    
+    API->>Facade: searchPlaces(searchCriteria)
+    
+    Facade->>Business: buildSearchQuery(criteria)
+    Business->>Business: validateSearchParameters()
+    Business->>Business: applyFilters(city, guests, price_range)
+    Business->>Business: buildSorting(preference)
+    
+    Facade->>Persistence: findPlaces(searchQuery)
+    Persistence->>DB: SELECT * FROM places WHERE city='Paris'<br/>AND max_guests >= 2 AND amenities LIKE '%wifi%'
+    DB-->>Persistence: places_data
+    
+    Persistence->>DB: SELECT AVG(rating) FROM reviews WHERE place_id IN (...)
+    DB-->>Persistence: average_ratings
+    
+    Persistence-->>Facade: places_with_ratings
+    
+    Facade->>Business: formatPlacesResponse(places_data)
+    Business->>Business: calculateOverallRatings()
+    Business->>Business: paginateResults()
+    Business-->>Facade: formatted_response
+    
+    Facade-->>API: search_results
+    API-->>User: 200 OK + paginated_places_data
