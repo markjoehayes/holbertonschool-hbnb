@@ -18,7 +18,7 @@ class Place(BaseModel):
 
     def add_review(self, review):
         """Add a review to the place"""
-        self.reviews.append(review)
+        self.reviews.append(review.id)
 
     def add_amenities(self, amenity):
         """Add an amenity to the place"""
