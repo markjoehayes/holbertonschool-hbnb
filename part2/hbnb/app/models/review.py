@@ -2,13 +2,13 @@ from app.models.base_model import BaseModel
 
 class Review(BaseModel):
     """Review class that inherits from BaseModel"""
-    def __init__(self, text="", rating=0, user_id="", place_id=""):
+    def __init__(self, text="", rating=0, user=None, user_id="", place=None, place_id=""):
         """Initializes Review with defaults"""
         super().__init__()
         self.text = text
         self.rating = self.validate_rating(rating)
-        self.user_id = user_id
-        self.place_id = place_id
+        self.user_id = user.id if user else user_id
+        self.place_id = place.id if place else place_id
 
     def validate_rating(self, rating):
         """Ensure rating is between 1 and 5"""
