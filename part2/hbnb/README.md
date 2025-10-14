@@ -49,15 +49,15 @@ hbnb/
 ```bash
 git clone <repository-url>
 cd hbnb
-
+```
 ### 2. Create Virtual Environment
 ```bash
 python3 -m venv venv
-
+```
 ### 3. Install Dependancies
 ```bash
 pip install -r requirements.txt
-
+```
 ### 4. Environment Configuration
 Create .flaskenv file for environment-specific variables:
 ```bash
@@ -65,3 +65,4 @@ export FLASK_APP=run.py > .flaskenv
 
 
 source venv/bin/activate
+```
