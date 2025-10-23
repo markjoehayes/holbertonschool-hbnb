@@ -1,4 +1,5 @@
 from app.models.base_model import BaseModel
+from app.models.review import Review
 
 class Review(BaseModel):
     """Review class that inherits from BaseModel"""

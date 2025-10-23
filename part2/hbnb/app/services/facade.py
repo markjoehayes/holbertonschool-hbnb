@@ -19,10 +19,6 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_atttribute('email', email)
 
-    def get_place(self, place_id):
-        # Logic will ve inplemented in later tasks
-        pass
-    
     def create_amenity(self, amenity_data):
         """Creates a new amenity with validation"""
         try:
@@ -219,3 +215,164 @@ class HBnBFacade:
         except Exception as e:
             print(f"Error updating place {place_id}: {e}")
             raise Exception("Failed to update place")
+
+    def create_review(self, review_data):
+        """Create a new review with validation"""
+        try:
+            # Validate required fields
+            required_fields = ['text', 'rating', 'user_id', 'place_id']
+            for field in required_fields:
+                if field not in review_data:
+                    raise ValueError(f"{field} is required")
+        
+            # Validate user exists
+            user = self.user_repo.get(review_data['user_id'])
+            if not user:
+                raise ValueError(f"User with ID {review_data['user_id']} not found")
+        
+            # Validate place exists
+            place = self.place_repo.get(review_data['place_id'])
+            if not place:
+                raise ValueError(f"Place with ID {review_data['place_id']} not found")
+        
+            # Validate text is not empty
+            text = review_data['text'].strip()
+            if not text:
+                raise ValueError("Review text cannot be empty")
+        
+            # Create new review - this will trigger rating validation
+            new_review = Review(
+                text=text,
+                rating=review_data['rating'],
+                user_id=review_data['user_id'],
+                place_id=review_data['place_id']
+            )
+        
+            # Save to repository
+            self.review_repo.add(new_review)
+        
+            # Add review to place's reviews list
+            place.add_review(new_review)
+        
+            return new_review
+        
+        except ValueError as e:
+            # Re-raise validation errors
+            raise e
+        except Exception as e:
+            print(f"Error creating review: {e}")
+            raise Exception("Failed to create review")
+
+    def get_review(self, review_id):
+        """Retrieve a review by ID"""
+        try:
+            if not review_id:
+                raise ValueError("Review ID is required")
+        
+            review = self.review_repo.get(review_id)
+            if not review:
+                raise ValueError(f"Review with ID {review_id} not found")
+        
+            return review
+        
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error retrieving review {review_id}: {e}")
+            raise Exception("Failed to retrieve review")
+
+    def get_all_reviews(self):
+        """Retrieve all reviews"""
+        try:
+            reviews = self.review_repo.get_all()
+            return reviews or []
+        
+        except Exception as e:
+            print(f"Error retrieving all reviews: {e}")
+            raise Exception("Failed to retrieve reviews")
+
+    def get_reviews_by_place(self, place_id):
+        """Retrieve all reviews for a specific place"""
+        try:
+            if not place_id:
+                raise ValueError("Place ID is required")
+        
+            # Validate place exists
+            place = self.place_repo.get(place_id)
+            if not place:
+                raise ValueError(f"Place with ID {place_id} not found")
+        
+            # Get all reviews and filter by place_id
+            all_reviews = self.get_all_reviews()
+            place_reviews = [review for review in all_reviews if review.place_id == place_id]
+        
+            return place_reviews
+        
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error retrieving reviews for place {place_id}: {e}")
+            raise Exception("Failed to retrieve reviews for place")
+
+    def update_review(self, review_id, review_data):
+        """Update a review"""
+        try:
+            if not review_id:
+                raise ValueError("Review ID is required")
+        
+            if not review_data:
+                raise ValueError("Update data is required")
+        
+            # Check if review exists
+            existing_review = self.get_review(review_id)
+            if not existing_review:
+                raise ValueError(f"Review with ID {review_id} not found")
+        
+            # Validate and update fields
+            updatable_fields = ['text', 'rating']
+        
+            for field in updatable_fields:
+                if field in review_data:
+                    if field == 'text':
+                        # Validate text is not empty
+                        text = review_data['text'].strip()
+                        if not text:
+                            raise ValueError("Review text cannot be empty")
+                        existing_review.text = text
+                    elif field == 'rating':
+                        # Use the validate_rating method
+                        existing_review.rating = existing_review.validate_rating(review_data['rating'])
+        
+            return existing_review
+        
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error updating review {review_id}: {e}")
+            raise Exception("Failed to update review")
+
+    def delete_review(self, review_id):
+        """Delete a review"""
+        try:
+            if not review_id:
+                raise ValueError("Review ID is required")
+        
+            # Check if review exists
+            review = self.get_review(review_id)
+            if not review:
+                raise ValueError(f"Review with ID {review_id} not found")
+        
+            # Remove from place's reviews list if place exists
+            place = self.place_repo.get(review.place_id)
+            if place and review in place.reviews:
+                place.reviews.remove(review)
+        
+            # Delete from repository
+            self.review_repo.delete(review_id)
+            return True
+        
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error deleting review {review_id}: {e}")
+            raise Exception("Failed to delete review")
