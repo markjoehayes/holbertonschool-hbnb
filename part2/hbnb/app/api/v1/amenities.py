@@ -2,10 +2,9 @@ from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app.services.facade import HBnBFacade
-from app.models import storage
 
 # Initialize facade
-facade = HBnBFacade(storage)
+facade = HBnBFacade()
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -19,7 +18,7 @@ amenity_response_model = api.model('AmenityResponse', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity'),
     'created_at': fields.String(description='Creation timestamp'),
-    'update_at': fields.String(description='last update tiemstamp')
+    'updated_at': fields.String(description='last update tiemstamp')
     })
 
 @api.route('/')
@@ -72,7 +71,7 @@ class AmenityResource(Resource):
         except ValueError as e:
             api.abort(404, str(e))
         except Exception as e:
-            api.abort(500, f'Internel Server Error: {str(e)}')
+            api.abort(500, f'Internal Server Error: {str(e)}')
         
 
     @api.expect(amenity_model)

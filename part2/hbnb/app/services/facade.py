@@ -42,7 +42,7 @@ class HBnBFacade:
             new_amenity = Amenity(name=name)
 
             # save to a repository
-            ctreated_amenity = self.amenity_repository.create(new_amenity)
+            created_amenity = self.amenity_repo.create(new_amenity)
             return created_amenity
 
         except Exception as e:
@@ -56,7 +56,7 @@ class HBnBFacade:
             if not amenity_id:
                 raise ValueError("Amenity ID is required")
 
-            amenity = self.amenity_repository.get_by_id(amenity_id)
+            amenity = self.amenity_repo.get_by_id(amenity_id)
             if not amenity:
                 raise ValueError(f"Amenity with ID {amenity_id} not found")
 
@@ -71,7 +71,7 @@ class HBnBFacade:
     def get_all_amenities(self):
         """Retrieve all amenities"""
         try:
-            amenities = self.amenity_repository.get_all()
+            amenities = self.amenity_repo.get_all()
             return amenities or []
 
         except Exception as e:
@@ -117,7 +117,7 @@ class HBnBFacade:
                 update_data['name'] = amenity_data['name'].strip()
 
             # Update amenity
-            updated_amenity = self.amenity_repository.update(amenity_id, update_data)
+            updated_amenity = self.amenity_repo.update(amenity_id, update_data)
             return updated_amenity
 
         except ValueError as e:
