@@ -1,4 +1,5 @@
 from app.persistence.repository import InMemoryRepository
+from app.models.place import Place
 
 class HBnBFacade:
     def __init__(self):
@@ -106,7 +107,7 @@ class HBnBFacade:
                         raise ValueError(f"Amenity with name '{name}' already exists")
 
             # Update amenity - your model's __init__ validation will handle the 50 char limit
-            # We need to create a new Amenity instance to trigger the validation
+            # Need to create a new Amenity instance to trigger the validation
             if 'name' in amenity_data:
                        # This will raise ValueError if name exceeds 50 chars (from your _validate_name)
                 test_amenity = Amenity(name=amenity_data['name'])
@@ -125,3 +126,96 @@ class HBnBFacade:
         except Exception as e:
             print(f"Error updating amenity {amenity_id}: {e}")
             raise Exception("Failed to update amenity")
+
+    def create_place(self, place_data):
+        """Create a new place with validation"""
+        try:
+            # Validate required fields
+            required_fields = ['title', 'price', 'owner_id']
+            for field in required_fields:
+                if field not in place_data:
+                    raise ValueError(f"{field} is required")
+
+            # Create new place - this will trigger validation in the Place class
+            new_place = Place(
+                title=place_data['title'],
+                description=place_data.get('description', ''),
+                price=place_data['price'],
+                latitude=place_data.get('latitude', 0.0),
+                longitude=place_data.get('longitude', 0.0),
+                owner_id=place_data['owner_id']
+            )
+
+            # Handle amenities if provided
+            if 'amenities' in place_data:
+                for amenity_id in place_data['amenities']:
+                    pass
+
+            # Save to repository
+            self.place_repo.add(new_place)
+            return new_place
+
+        except ValueError as e:
+            # Re-raise validation errors from Place class
+            raise e
+        except Exception as e:
+            print(f"Error creating place: {e}")
+            raise Exception("Failed to create place")
+
+    def get_place(self, place_id):
+        """Retrieve a place by ID"""
+        try:
+            if not place_id:
+                raise ValueError("Place ID is required")
+
+            place = self.place_repo.get(place_id)
+            if not place:
+                raise ValueError(f"Place with ID {place_id} not found")
+
+            return place
+
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error retrieving place {place_id}: {e}")
+            raise Exception("Failed to retrieve place")
+
+    def get_all_places(self):
+        """Retrieve all Places"""
+        try:
+            places = self.place_repo.get_all()
+            return places or []
+
+        except Exception as e:
+            print(f"Error retrieving all places: {e}")
+            raise Exception("Failed to retrieve places")
+
+    def update_place(self, place_id, place_data):
+        """Update an existing place"""
+        try:
+            if not place_id:
+                raise ValueError("Place ID is required")
+
+            if not place_data:
+                raise ValueError("Update data is required")
+
+            # Check if place exists
+            existing_place = self.get_place(place_id)
+            if not existing_place:
+                raise ValueError(f"Place with ID {place_id} not found")
+
+            # Validate and update fields
+            updatable_fields = ['title', 'description', 'price', 'latitude', 'longitude']
+
+            for field in updatable_fields:
+                if field in place_data:
+                    # Use property setters for validation (for price, latitude, longitude)
+                    setattr(existing_place, field, place_data[field])
+
+            return existing_place
+
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            print(f"Error updating place {place_id}: {e}")
+            raise Exception("Failed to update place")
