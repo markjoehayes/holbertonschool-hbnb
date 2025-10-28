@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_restx import Api
+from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
 
+bcrypt = Bcrypt()
 load_dotenv()
 
 def create_app(config_class="config.DevelopmentConfig"):
@@ -16,6 +18,8 @@ def create_app(config_class="config.DevelopmentConfig"):
               title='HBnB API', 
               description='HBnB Application API', 
               doc='/api/v1/')
+
+    bcrypt.init_app(app)
 
     # Import and register namespaces
     from app.api.v1.amenities import api as amenities_ns
