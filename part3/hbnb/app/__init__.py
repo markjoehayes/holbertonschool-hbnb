@@ -6,8 +6,16 @@ import os
 load_dotenv()
 
 def create_app():
+    """Application factory function that returns configured flask app istance"""
     app = Flask(__name__)
-    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API', doc='/api/v1/')
+    # load configuration from the specified class
+    app.config.from_object(config_class)
+    # Initialize API
+    api = Api(app, 
+              version='1.0', 
+              title='HBnB API', 
+              description='HBnB Application API', 
+              doc='/api/v1/')
 
     # Import and register namespaces
     from app.api.v1.amenities import api as amenities_ns
