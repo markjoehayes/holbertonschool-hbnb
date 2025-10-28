@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-def create_app():
+def create_app(config_class="config.DevelopmentConfig"):
     """Application factory function that returns configured flask app istance"""
     app = Flask(__name__)
     # load configuration from the specified class
