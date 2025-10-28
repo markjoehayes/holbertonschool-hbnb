@@ -1,4 +1,5 @@
 from app.models.base_model import BaseModel
+from app import bcrypt
 
 class User(BaseModel):
     """User class that iherits from BaseModel"""
@@ -7,14 +8,14 @@ class User(BaseModel):
         """Initialize User with provided default attributes"""
         super().__init__()
         self.email = email
-        self.password = password
+        self.password = password_hash # does strore hash password
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
 
     def hash_password(self, password):
         """Hashes the password before storing it"""
-        self.password = bcrytp.generate_password_hash(password).decode('utf-8')
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password"""
@@ -28,3 +29,14 @@ class User(BaseModel):
         """Custom string representation"""
         admin_status = " (Admin)" if self.is_admin else ""
         return f"User ({self.id}) {self.email} - {self.get_full_name()}{admin_status}"
+
+    def to_dict(self):
+        """Return dictionary representation without password"""
+        user_dict = super().to_dict()
+        user_dict.update({
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'is_admin': self.is_admin
+        })
+        return user_dict
