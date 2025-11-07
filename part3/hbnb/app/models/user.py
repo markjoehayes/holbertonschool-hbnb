@@ -11,9 +11,13 @@ class User(BaseModel):
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
-        # hash the password if provided
+        # hash the password if provided and not already hashed
         if password:
-            self.hash_password(password)
+            # check if already hashed - starts with $2b$
+            if password.startswith('$2b$'):
+                self.password = password
+            else:
+                self.hash_password(password)
         else:
             self.password = ""
 
