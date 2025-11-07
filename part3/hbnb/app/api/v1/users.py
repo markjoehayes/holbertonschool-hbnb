@@ -1,7 +1,7 @@
 from flask import request
 from flask_restx import Namespace, Resource, fields, reqparse
 from app.models.user import User
-from app.models.storage import Storage
+from app.models.storage import storage
 from app.services import facade
 from app.services.facade import HBnBFacade
 from app import bcrypt
@@ -26,7 +26,7 @@ user_response_model = api.model('UserResponse', {
         'last_name': fields.String(description='Last name of user'),
         'email': fields.String(description='Email of the user'),
         'created_at': fields.String(description='Creation timestamp'),
-        'updated_at': fields.String(description='Last update timestamp')
+        'updated_at': fields.String(description='Last update timestamp'),
         'message': fields.String(description='Success message')
 })
 
