@@ -47,15 +47,24 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    DEBUG = False
-    TESTING = False
+    """Production Environment configuration"""
 
-    # Production database - MUST be set vial env variable
-    SQALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    def __init__(self):
+        # Only check when the class is actually used
 
-    if not SQALCHEMY_DATABASE_URI:
-        raise ValueError("DATABASE_URL environment variable is required for production!")
+        self.DEBUG = False
+        self.TESTING = False
 
-    # Production Security settings
-    SECRET_KEY = os.getenv('SECRET_KEY')
-    if not SECRET_KEY:
+        # Production database - MUST be set vial env variable
+        self.SQALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+
+        if not self.SQALCHEMY_DATABASE_URI:
+            raise ValueError("DATABASE_URL environment variable is required for production!")
+
+        # Production Security settings
+        self.SECRET_KEY = os.getenv('SECRET_KEY')
+        if not self.SECRET_KEY:
+            raise ValueError("SECRET_KEY environment variable is required for production!")
+
+        # call parent constructor to set other attributes
+        super().__init__()
