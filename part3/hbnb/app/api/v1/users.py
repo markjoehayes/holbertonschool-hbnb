@@ -27,6 +27,7 @@ user_response_model = api.model('UserResponse', {
         'email': fields.String(description='Email of the user'),
         'created_at': fields.String(description='Creation timestamp'),
         'updated_at': fields.String(description='Last update timestamp')
+        'message': fields.String(description='Success message')
 })
 
 @api.route('/')
@@ -64,7 +65,10 @@ class UserList(Resource):
 
             # create a user using facade
             new_user = facade.create_user(user_data_with_hash)
-            return new_user.to_dict(), 201
+            response_data = new_user.to_dict()
+            response_data['message'] = 'User created successfully'
+
+            return response_data, 201
 
         except Exception as e:
             return {'error': f'Internal server error: {str(e)}'}, 500
