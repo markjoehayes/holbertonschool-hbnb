@@ -15,7 +15,11 @@ class Repository(ABC):
 
     @abstractmethod
     def update(self, obj_id, data):
-        pass
+        obj = self.get(obj_id)
+        if obj:
+            obj.update(data)
+            return obj
+        return None
 
     @abstractmethod
     def delete(self, obj_id):
