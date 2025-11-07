@@ -43,6 +43,8 @@ class User(BaseModel):
     def to_dict(self):
         """Return dictionary representation without password"""
         user_dict = super().to_dict()
+        if 'password' in user_dict:
+            del user_dict['password']
         user_dict.update({
             'email': self.email,
             'first_name': self.first_name,
