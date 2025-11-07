@@ -62,7 +62,7 @@ class UserList(Resource):
             return {'error': f'Internal server error: {str(e)}'}, 500
 
 
-@spi.route('/<user_id>')
+@api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
     @api.response(400, 'User not found')

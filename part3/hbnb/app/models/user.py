@@ -8,10 +8,14 @@ class User(BaseModel):
         """Initialize User with provided default attributes"""
         super().__init__()
         self.email = email
-        self.password = password_hash # does strore hash password
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
+        # hash the password if provided
+        if password:
+            self.hash_password(password)
+        else:
+            self.password = ""
 
     def hash_password(self, password):
         """Hashes the password before storing it"""
