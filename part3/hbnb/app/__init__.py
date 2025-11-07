@@ -7,11 +7,32 @@ import os
 bcrypt = Bcrypt()
 load_dotenv()
 
-def create_app(config_class="config.DevelopmentConfig"):
-    """Application factory function that returns configured flask app istance"""
+def create_app(config_class=None):
+    """Application factory function that returns configured flask app instance"""
+
+    # Environment detection logic
+    if config_class is None:
+        # Get environement from environement variable, default = 'development'
+        env = os.getenv('FLASK_ENV', 'development').lower()
+
+        if env == 'production':
+            config_class = 'config.ProductionConfig'
+            print("Loading Production Configuration")
+        elif env == 'testing':
+            config_class = 'config.TestingConfig'
+            print("Loading Testing Configuration")
+        else: 
+            config_class = 'config.DevelopmentConfig'
+            print("Loading Development Configuration")
+
+
     app = Flask(__name__)
     # load configuration from the specified class
-    app.config.from_object(config_class)
+    try:
+        app.config.from_object(config_class)
+        print(f"Configuartion loaded: {config_class}")
+    except ImportError as e:
+        raise ValueError(f"Invalid configuration class: {config_class}. Error: {e}")
     # Initialize API
     api = Api(app, 
               version='1.0', 
