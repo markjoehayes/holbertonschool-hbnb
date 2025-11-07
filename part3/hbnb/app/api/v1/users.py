@@ -1,5 +1,7 @@
 from flask import request
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields, reqparse
+from app.models.user import User
+from app.models.storage import Storage
 from app.services import facade
 from app.services.facade import HBnBFacade
 from app import bcrypt
@@ -51,11 +53,17 @@ class UserList(Resource):
 
             # Hash the password before creating user
             password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-            # Remove plain text password from user data
-            del user_data['password']
+
+            # Create user data with hashed password
+            user_data_with_hash = {
+                    'first_name': user_data['first_name'],
+                    'last_name': user_data['last_name'],
+                    'email': usrer_data['email'],
+                    'password': password_hash # pass hash inplace of plaintext pw
+            }
 
             # create a user using facade
-            new_user = facade.create_user(user_data)
+            new_user = facade.create_user(user_data_with_hash)
             return new_user.to_dict(), 201
 
         except Exception as e:
