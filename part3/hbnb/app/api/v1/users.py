@@ -41,33 +41,33 @@ class UserList(Resource):
         """Register a new user"""
         try:
             user_data = api.payload
-            print(f"🔧 DEBUG 1: Received user data: {user_data}")
+            print(f"DEBUG 1: Received user data: {user_data}")
             
             # Validate required fields
             required_fields = ['first_name', 'last_name', 'email', 'password']
             for field in required_fields:
                 if field not in user_data:
-                    print(f"❌ DEBUG: Missing field {field}")
+                    print(f"DEBUG: Missing field {field}")
                     return {'error': f'Missing required field: {field}'}, 400
 
-            print("✅ DEBUG 2: All required fields present")
+            print("DEBUG 2: All required fields present")
             
             # Check email uniqueness
-            print(f"🔍 DEBUG 3: Checking email uniqueness for: {user_data['email']}")
+            print(f"DEBUG 3: Checking email uniqueness for: {user_data['email']}")
             existing_user = facade.get_user_by_email(user_data['email'])
             if existing_user:
-                print(f"❌ DEBUG: Email already exists")
+                print(f"DEBUG: Email already exists")
                 return {'error': 'Email already registered'}, 400
             
-            print("✅ DEBUG 4: Email is unique")
+            print("DEBUG 4: Email is unique")
 
             # Hash the password
-            print("🔐 DEBUG 5: Hashing password...")
+            print("DEBUG 5: Hashing password...")
             try:
                 password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-                print(f"✅ DEBUG: Password hash created: {password_hash[:20]}...")
+                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
             except Exception as e:
-                print(f"❌ DEBUG: Password hashing failed: {e}")
+                print(f" DEBUG: Password hashing failed: {e}")
                 raise
 
             # Create user data with hashed password
@@ -77,16 +77,16 @@ class UserList(Resource):
                 'email': user_data['email'],
                 'password': password_hash
             }
-            print(f"📝 DEBUG 6: Prepared user data: {user_data_with_hash}")
+            print(f"DEBUG 6: Prepared user data: {user_data_with_hash}")
 
             # Create a user using facade
-            print("👤 DEBUG 7: Calling facade.create_user()...")
+            print("DEBUG 7: Calling facade.create_user()...")
             try:
                 new_user = facade.create_user(user_data_with_hash)
-                print(f"✅ DEBUG: facade.create_user() returned: {new_user}")
+                print(f"DEBUG: facade.create_user() returned: {new_user}")
                 
                 if new_user is None:
-                    print("❌ DEBUG: facade.create_user() returned None!")
+                    print("DEBUG: facade.create_user() returned None!")
                     return {'error': 'Failed to create user'}, 500
                     
                 print(f"🔍 DEBUG 8: New user attributes:")
@@ -97,18 +97,18 @@ class UserList(Resource):
                 print(f"   - Password: {getattr(new_user, 'password', 'MISSING')}")
                 
             except Exception as e:
-                print(f"❌ DEBUG: facade.create_user() raised exception: {e}")
+                print(f"DEBUG: facade.create_user() raised exception: {e}")
                 import traceback
-                print(f"📜 DEBUG: Traceback from facade:\n{traceback.format_exc()}")
+                print(f"DEBUG: Traceback from facade:\n{traceback.format_exc()}")
                 raise
 
             # Try to call to_dict()
-            print("📋 DEBUG 9: Calling to_dict()...")
+            print("DEBUG 9: Calling to_dict()...")
             try:
                 user_dict = new_user.to_dict()
-                print(f"✅ DEBUG: to_dict() result: {user_dict}")
+                print(f"DEBUG: to_dict() result: {user_dict}")
             except Exception as e:
-                print(f"❌ DEBUG: to_dict() failed: {e}")
+                print(f"DEBUG: to_dict() failed: {e}")
                 # Create manual response as fallback
                 user_dict = {
                     'id': getattr(new_user, 'id', None),
@@ -118,17 +118,17 @@ class UserList(Resource):
                     'created_at': getattr(new_user, 'created_at', None),
                     'updated_at': getattr(new_user, 'updated_at', None)
                 }
-                print(f"🔄 DEBUG: Using manual dict: {user_dict}")
+                print(f"DEBUG: Using manual dict: {user_dict}")
 
             user_dict['message'] = 'User created successfully'
-            print(f"🎉 DEBUG 10: Final response ready")
+            print(f"DEBUG 10: Final response ready")
             
             return user_dict, 201
 
         except Exception as e:
-            print(f"💥 DEBUG 11: TOP-LEVEL EXCEPTION: {str(e)}")
+            print(f"DEBUG 11: TOP-LEVEL EXCEPTION: {str(e)}")
             import traceback
-            print(f"📜 DEBUG 12: FULL TRACEBACK:\n{traceback.format_exc()}")
+            print(f"DEBUG 12: FULL TRACEBACK:\n{traceback.format_exc()}")
             return {'error': f'Internal server error: {str(e)}'}, 500
 
 @api.route('/<user_id>')

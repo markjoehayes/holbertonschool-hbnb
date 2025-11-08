@@ -3,9 +3,11 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
+from flask_jwt_extended import JWTManager
 
 bcrypt = Bcrypt()
 load_dotenv()
+jwt = JWTManager()
 
 def create_app(config_class=None):
     """Application factory function that returns configured flask app instance"""
@@ -41,6 +43,7 @@ def create_app(config_class=None):
               doc='/api/v1/')
 
     bcrypt.init_app(app)
+    jwt.init_app(app)
 
     # Import and register namespaces
     from app.api.v1.users import api as users_ns
