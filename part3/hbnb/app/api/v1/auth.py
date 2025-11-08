@@ -26,7 +26,7 @@ class Login(Resource):
 
         # Step 3 Create a JWT token with the user's id and is_admin flag
         access_token = create_access_token(
-                identify=str(user.id), # only user id goes here
+                identity=str(user.id), # only user id goes here
                 additional_claims={"is_admin": user.is_admin} # extra info here
                 )
 
@@ -38,9 +38,11 @@ class ProtectedResource(Resource):
     @jwt_required()
     def get(self):
         """A protected endpoint that requires a valid JWT token"""
-        print("jwt------")
-        print(get_jwt_identity())
         current_user = get_jwt_identity() # Retrieve the user's identitiy form the token
         additional_claims = get_jwt()
-        additional_claims["is_admin"]
-        return {'message': f'Hello, user {current_user}'}, 200
+        is_admin = claims.get("is_admin", False)
+
+        return {
+                'message': f'Hello, user {current_user}',
+                'is_admin': is_admin
+                }, 200
