@@ -3,11 +3,11 @@ from flask_restx import Namespace, Resource, fields, reqparse
 from app.models.user import User
 from app.models.storage import storage
 from app.services import facade
-from app.services.facade import HBnBFacade
+from app.services import facade
 from app import bcrypt
 
 # Initialize facade
-facade = HBnBFacade()
+#facade = HBnBFacade()
 
 api = Namespace('users', description='User operations')
 

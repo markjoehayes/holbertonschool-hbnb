@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Namespace
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 bcrypt = Bcrypt()
 load_dotenv()
-jwt = JWTManager()
 
 def create_app(config_class=None):
     """Application factory function that returns configured flask app instance"""
@@ -35,6 +35,14 @@ def create_app(config_class=None):
         print(f"Configuartion loaded: {config_class}")
     except ImportError as e:
         raise ValueError(f"Invalid configuration class: {config_class}. Error: {e}")
+
+    # JWT config
+    app.config['JWT_SECRET_KEY'] = app.config.get('SECRET_KEY', 'fallback-secret-key')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+
+    # Initialize JWT
+    jwt = JWTManager(app)
+
     # Initialize API
     api = Api(app, 
               version='1.0', 
@@ -47,15 +55,45 @@ def create_app(config_class=None):
 
     # Import and register namespaces
     from app.api.v1.users import api as users_ns
-    form app.api.v1.auth import as auth_ns
+    from app.api.v1.auth import api as auth_ns
     from app.api.v1.amenities import api as amenities_ns
     from app.api.v1.reviews import api as reviews_ns
     from app.api.v1.places import api as places_ns
 
-    api.add_namespace(users_ns, path='/api/v1/users')
-    api.add_namespace(auth_ns, path='api/v1/auth')
+    # Temporary debug
+    print("🔧 DEBUG: Before auth import")
+    try:
+        from app.api.v1.auth import api as auth_ns
+        print("✅ DEBUG: Auth import successful")
+    except Exception as e:
+        print(f"❌ DEBUG: Auth import failed: {e}")
+        import traceback
+        traceback.print_exc()
+        # Create a dummy namespace to avoid crash
+        from flask_restx import Namespace
+        auth_ns = Namespace('auth', description='Authentication operations')
+
+
+    print("🔧 DEBUG: Registering namespaces...")
+    
     api.add_namespace(amenities_ns, path='/api/v1/amenities')
-    api.add_namespace(reviews_ns, path='/api/v1/reviews')
+    print("✅ DEBUG: Amenities namespace registered")
+    
+    api.add_namespace(reviews_ns, path='/api/v1/reviews') 
+    print("✅ DEBUG: Reviews namespace registered")
+    
     api.add_namespace(places_ns, path='/api/v1/places')
-        
+    print("✅ DEBUG: Places namespace registered")
+    
+    api.add_namespace(users_ns, path='/api/v1/users')
+    print("✅ DEBUG: Users namespace registered")
+    
+    api.add_namespace(auth_ns, path='/api/v1/auth')
+    print("✅ DEBUG: Auth namespace registered")
+    
+    # Debug: List all registered routes
+    print("🔧 DEBUG: All registered routes:")
+    for rule in app.url_map.iter_rules():
+        print(f"  {rule.rule} -> {rule.endpoint}")
+    
     return app
