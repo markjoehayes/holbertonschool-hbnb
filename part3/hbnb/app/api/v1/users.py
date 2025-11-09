@@ -4,6 +4,7 @@ from app.models.user import User
 from app.models.storage import storage
 from app.services import facade
 from app import bcrypt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 # Initialize facade
 #facade = HBnBFacade()
@@ -148,3 +149,41 @@ class UserResource(Resource):
             api.abort(404, str(e))
         except Exception as e:
             api.abort(500, f'Internal server error: {str(e)}')
+
+@api.expect(user_update_model)  # We'll create this model below
+    @api.response(200, 'User updated successfully')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
+    @api.response(404, 'User not found')
+    @api.marshal_with(user_response_model)
+    @jwt_required()  # ADD JWT PROTECTION
+    def put(self, user_id):
+        """Update user information (users can only update their own data)"""
+        try:
+            current_user_id = get_jwt_identity()  # Get current user from JWT
+            
+            # Check if user is modifying their own data
+            if user_id != current_user_id:
+                return {'error': 'Unauthorized action'}, 403
+
+            data = request.get_json()
+            if not data:
+                return {'error': 'No input data provided'}, 400
+
+            # Prevent email and password modification
+            if 'email' in data:
+                return {'error': 'You cannot modify email'}, 400
+            if 'password' in data:
+                return {'error': 'You cannot modify password'}, 400
+
+            # Update user using facade
+            updated_user = facade.update_user(user_id, data)
+            if not updated_user:
+                return {'error': 'User not found'}, 404
+            
+            return updated_user.to_dict(), 200
+
+        except ValueError as e:
+            return {'error': str(e)}, 400
+        except Exception as e:
+            return {'error': f'Internal server error: {str(e)}'}, 500
