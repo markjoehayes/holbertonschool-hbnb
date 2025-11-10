@@ -48,8 +48,11 @@ class PlaceList(Resource):
     def post(self):
         """Create a new place (protected)"""
         current_user_id = get_jwt_identity()
-        place_data = api.payload
+        place_data = api.payload or {}
         
+        if not place_data.get('name'):
+            return {'error': 'Missing required field: name'}, 400
+
         # Set the owner to current user
         place_data['owner_id'] = current_user_id
         
@@ -58,6 +61,8 @@ class PlaceList(Resource):
             return new_place.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400
+        except Exception as e:
+            return {'error': f'Internal server error: {str(e)}'}, 500
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
