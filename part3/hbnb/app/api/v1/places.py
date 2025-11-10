@@ -84,12 +84,16 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
             
-        if place.owner_id != current_user_id:
+        if str(place.owner_id) != str(current_user_id):
             return {'error': 'Unauthorized action'}, 403
+
+        update_data = api.payload or {}
         
         # Update the place
         try:
-            updated_place = facade.update_place(place_id, api.payload)
+            updated_place = facade.update_place(place_id, update_data)
             return updated_place.to_dict(), 200
         except Exception as e:
             return {'error': str(e)}, 400
+        except Exception as e:
+            return {'error': f'Internal server error: {str(e)}'}, 500
