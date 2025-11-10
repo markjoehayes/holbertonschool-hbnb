@@ -1,3 +1,5 @@
+from app import bcrypt
+from app.models.storage import storage
 from app.persistence.repository import InMemoryRepository
 from app.models.place import Place
 from app.models.user import User
@@ -13,6 +15,12 @@ class HBnBFacade:
     def create_user(self, user_data):
         """Create a new user with hashed password"""
         #user = User(**user_data) #change for security reasons
+        hashed_password_bytes = bcrypt.generate_password_hash(user_data['password'])
+        try:
+            hashed_password = hashed_password_bytes.decode('utf-8')
+        except AttributeError:
+            hashed_password = hashed_password_bytes
+
         user = User(
                 first_name=user_data['first_name'],
                 last_name=user_data['last_name'],
@@ -20,12 +28,18 @@ class HBnBFacade:
                 password=hashed_password
         )
         self.user_repo.add(user)
+        try:
+            storage.save()  # persist change globally!
+        except Exception as e:
+            print(f"[facade.create_user] storage.save() failed: {e}")
         return user
 
     def get_user(self, user_id):
+        """Retrieve a user by ID"""
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
+        """Find user by email"""
         return self.user_repo.get_by_attribute('email', email)
 
     def update_user(self, user_id, user_data):
@@ -400,3 +414,6 @@ class HBnBFacade:
         except Exception as e:
             print(f"Error deleting review {review_id}: {e}")
             raise Exception("Failed to delete review")
+
+    #create a single global instance
+facade = HBnBFacade()

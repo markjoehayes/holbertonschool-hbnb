@@ -1,3 +1,4 @@
+from app import bcrypt
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.services import facade
@@ -18,7 +19,7 @@ class Login(Resource):
         password = data.get('password')
 
         user = facade.get_user_by_email(email)
-        if not user or not check_password_hash(user.password, password):
+        if not user or not bcrypt.check_password_hash(user.password, password):
             return {'error': 'Invalid credentials'}, 401
 
         access_token = create_access_token(identity=user.id)
