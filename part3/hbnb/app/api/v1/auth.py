@@ -12,31 +12,17 @@ login_model = api.model('Login', {
 
 @api.route('/login')
 class Login(Resource):
-    @api.expect(login_model)
     def post(self):
-        credentials = api.payload
-        print("=== DEBUG START ===")
-        print(f"Looking up: {credentials['email']}")
-        
-        try:
-            user = facade.get_user_by_email(credentials['email'])
-            print(f"SUCCESS: User found - {user is not None}")
-            if user:
-                print(f"User ID: {user.id}")
-        except Exception as e:
-            print(f"ERROR: {e}")
-            import traceback
-            traceback.print_exc()
-            user = None
-        
-        if not user:
-            print("FAIL: No user found")
-            return {'error': 'Invalid credentials'}, 401
-            
-        print("DEBUG END ===")
-        access_token = create_access_token(identity=str(user.id))
-        return {'access_token': access_token}, 200
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
 
+        user = facade.get_user_by_email(email)
+        if not user or not check_password_hash(user.password, password):
+            return {'error': 'Invalid credentials'}, 401
+
+        access_token = create_access_token(identity=user.id)
+        return {'access_token': access_token}, 200
 
 @api.route('/protected')
 class ProtectedResource(Resource):
