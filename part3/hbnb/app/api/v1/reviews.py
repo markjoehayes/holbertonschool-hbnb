@@ -29,9 +29,10 @@ review_response_model = api.model('ReviewResponse', {
 
 @api.route('/')
 class ReviewList(Resource):
-    @api.expect(review_model)
+    @api.expect(review_model, validate=True)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Cannot review your own place')
     @api.marshal_with(review_response_model, code=201)
     @jwt_required()
     def post(self):
@@ -46,21 +47,29 @@ class ReviewList(Resource):
 
             # ADD VALIDATION: Check if user owns the place
             place = facade.get_place(data['place_id'])
-            if place.user_id == current_user_id:
-                return {'error': 'You cannot review your own place'}, 400
+            if not place:
+                api.abort(403, 'You cannot review your own place')
 
             # ADD VALIDATION: Check if user already reviewed this place
             existing_reviews = facade.get_reviews_by_place(data['place_id'])
             for review in existing_reviews:
                 if review.user_id == current_user_id:
-                    return {'error': 'You have already reviewed this place'}, 400
+                    api.abort(400, 'You have already reviewed this place')
+
+            review_data = {
+                    'text': data['text'],
+                    'rating': data['ratiing'],
+                    'user_id': current_user_id,
+                    'place_id': data['place_id']
+            }
+
+            # create review using facade
+            review = facade.create_review(review_data)
+            return review.to_dict(), 201
 
             # Set the user_id from JWT token, not from request
-            data['user_id'] = current_user_id  # OVERRIDE with current user    
+            # data['user_id'] = current_user_id  # OVERRIDE with current user    
             
-            # Create review using facade
-            review = facade.create_review(data)
-            return review.to_dict(), 201
             
         except ValueError as e:
             api.abort(400, str(e))
@@ -86,8 +95,6 @@ class ReviewResource(Resource):
         """Get review details by ID"""
         try:
             review = facade.get_review(review_id)
-            if not review:
-                api.abort(404, f'Review with ID {review_id} not found')
             return review.to_dict(), 200
         except ValueError as e:
             api.abort(404, str(e))
@@ -115,26 +122,16 @@ class ReviewResource(Resource):
             if not review:
                 api.abort(404, f'Review with ID {review_id} not found')
                 
-            if review.user_id != current_user_id:
-                return {'error': 'Unauthorized action'}, 403    
-            
-            # Update review using facade
-            review = facade.update_review(review_id, data)
-            if not review:
-                api.abort(404, f'Review with ID {review_id} not found')
-            
-            return review.to_dict(), 200
-            
+            updated = facade.update_review(review_id, data)
+            return updated.to_dict(), 200
+
         except ValueError as e:
-            # Handle both validation errors and not found errors
-            if 'not found' in str(e).lower():
-                api.abort(404, str(e))
-            else:
-                api.abort(400, str(e))
+            api.abort(400, str(e))
         except Exception as e:
             api.abort(500, f'Internal server error: {str(e)}')
 
     @api.response(200, 'Review deleted successfully')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'Review not found')
     @jwt_required()
     def delete(self, review_id):
@@ -144,11 +141,8 @@ class ReviewResource(Resource):
 
             # ADD VALIDATION: Check if user owns the review
             review = facade.get_review(review_id)
-            if not review:
-                api.abort(404, f'Review with ID {review_id} not found')
-
-            if review.user_id != current_user_id:
-                return {'error': 'Unauthorized action'}, 403
+            if review.user_id != get_jwt_identity()
+                api.abort(403, 'You can only delete your own reviews')
 
             success = facade.delete_review(review_id)
             if not success:
