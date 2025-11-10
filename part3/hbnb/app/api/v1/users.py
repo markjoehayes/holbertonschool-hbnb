@@ -137,16 +137,16 @@ class UserList(Resource):
             return {'error': f'Internal server error: {str(e)}'}, 500
 
         @api.response(200, 'List of all users')
-        def get(self):
-            """Retrieve all registered users"""
+    def get(self):
+        """Retrieve all registered users"""
             
-            try:
-                users = facade.user_repo.get_all()
-                user_list = [user.to_dict() for user in users]
-                return user_list, 200
-            except Exception as e:
-                print(f"DEBUG: Error retrieving users: {e}")
-                return {'error': 'Internal server error'}, 500
+        try:
+            users = facade.user_repo.get_all()
+            user_list = [user.to_dict() for user in users]
+            return user_list, 200
+        except Exception as e:
+            print(f"DEBUG: Error retrieving users: {e}")
+            return {'error': 'Internal server error'}, 500
 
 @api.route('/<user_id>')
 class UserResource(Resource):
