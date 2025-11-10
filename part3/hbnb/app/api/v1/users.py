@@ -33,6 +33,7 @@ user_response_model = api.model('UserResponse', {
 user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(description='First name of the user'),
     'last_name': fields.String(description='Last name of the user')
+    })
 
 @api.route('/')
 class UserList(Resource):
@@ -154,7 +155,7 @@ class UserResource(Resource):
         except Exception as e:
             api.abort(500, f'Internal server error: {str(e)}')
 
-@api.expect(user_update_model)  # We'll create this model below
+    @api.expect(user_update_model)  # We'll create this model below
     @api.response(200, 'User updated successfully')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action')
