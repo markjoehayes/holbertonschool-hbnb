@@ -45,9 +45,17 @@ class ReviewList(Resource):
             if not data:
                 api.abort(400, 'No input data provided')
 
+            # Validate required fields
+            if 'text' not in data or 'rating' not in data or 'place_id' not in data:
+                api.abort(400, 'Missing required fields: text, rating, or place_id')
+
+
             # ADD VALIDATION: Check if user owns the place
             place = facade.get_place(data['place_id'])
             if not place:
+                api.abort(404, 'Place not found')
+
+            if place.owner_id == current_user_id:
                 api.abort(403, 'You cannot review your own place')
 
             # ADD VALIDATION: Check if user already reviewed this place
@@ -55,10 +63,11 @@ class ReviewList(Resource):
             for review in existing_reviews:
                 if review.user_id == current_user_id:
                     api.abort(400, 'You have already reviewed this place')
-
+            
+            # prepare review data
             review_data = {
                     'text': data['text'],
-                    'rating': data['ratiing'],
+                    'rating': data['rating'],
                     'user_id': current_user_id,
                     'place_id': data['place_id']
             }
@@ -74,6 +83,8 @@ class ReviewList(Resource):
         except ValueError as e:
             api.abort(400, str(e))
         except Exception as e:
+            import traceback
+            print("DEBUG TRACEBACK:\n", traceback.format_exc())
             api.abort(500, f'Internal server error: {str(e)}')
 
     @api.response(200, 'List of reviews retrieved successfully')
@@ -141,7 +152,7 @@ class ReviewResource(Resource):
 
             # ADD VALIDATION: Check if user owns the review
             review = facade.get_review(review_id)
-            if review.user_id != get_jwt_identity()
+            if review.user_id != get_jwt_identity():
                 api.abort(403, 'You can only delete your own reviews')
 
             success = facade.delete_review(review_id)
