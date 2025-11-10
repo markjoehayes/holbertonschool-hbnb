@@ -35,7 +35,6 @@ class PlaceReviewList(Resource):
         except Exception as e:
             api.abort(500, f'Internal server error: {str(e)}')
 
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 @api.route('/')
 class PlaceList(Resource):
