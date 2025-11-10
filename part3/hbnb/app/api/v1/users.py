@@ -136,7 +136,7 @@ class UserList(Resource):
             print(f"DEBUG 12: FULL TRACEBACK:\n{traceback.format_exc()}")
             return {'error': f'Internal server error: {str(e)}'}, 500
 
-        @api.response(200, 'List of all users')
+    @api.response(200, 'List of all users')
     def get(self):
         """Retrieve all registered users"""
             

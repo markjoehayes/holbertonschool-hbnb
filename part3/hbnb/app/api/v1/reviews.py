@@ -13,7 +13,6 @@ api = Namespace('reviews', description='Review operations')
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
@@ -47,7 +46,7 @@ class ReviewList(Resource):
 
             # ADD VALIDATION: Check if user owns the place
             place = facade.get_place(data['place_id'])
-            if place.owner_id == current_user_id:
+            if place.user_id == current_user_id:
                 return {'error': 'You cannot review your own place'}, 400
 
             # ADD VALIDATION: Check if user already reviewed this place
