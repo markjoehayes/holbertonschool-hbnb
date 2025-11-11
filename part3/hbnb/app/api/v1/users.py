@@ -113,22 +113,45 @@ class UserList(Resource):
 
 
             #  Check if email already exists (using SimpleStorage)
-            existing_user = storage.get_by_email(User, user_data["email"]) if hasattr(storage, "get_by_email") else None
+#            existing_user = storage.get_by_email(User, user_data["email"]) if hasattr(storage, "get_by_email") else None
+ #           if existing_user:
+ #               print(f"DEBUG: Email already exists in SimpleStorage")
+ #               return {'error': 'Email already registered'}, 400
+#
+            #  Create a new user object and store it
+#            print("DEBUG 7: Creating User instance and saving via SimpleStorage")
+#            new_user = facade.create_user(user_data)
+#            storage.new(new_user)
+#            storage.save()  # currently a no-op, but keeps interface consistent
+#            print(f"DEBUG: Saved new user {new_user.email} with id {new_user.id}")
+#
+#            user_dict['message'] = 'User created successfully'
+#            print(f"DEBUG 10: Final response ready")
+#            
+#            return user_dict, 201
+                        # Check if email already exists (using SimpleStorage)
+            existing_user = storage.get_by_attribute("email", user_data["email"]) if hasattr(storage, "get_by_attribute") else None
             if existing_user:
                 print(f"DEBUG: Email already exists in SimpleStorage")
                 return {'error': 'Email already registered'}, 400
 
-            #  Create a new user object and store it
-            print("DEBUG 7: Creating User instance and saving via SimpleStorage")
-            new_user = User(**user_data_with_hash)
-            storage.new(new_user)
-            storage.save()  # currently a no-op, but keeps interface consistent
-            print(f"DEBUG: Saved new user {new_user.email} with id {new_user.id}")
+            # Create a new user object and store it through the facade
+            print("DEBUG 7: Creating User instance via facade.create_user()")
+            new_user = facade.create_user(user_data)
 
+            if not new_user:
+                print("DEBUG 8: Facade returned None — user creation failed")
+                return {'error': 'Failed to create user'}, 500
+
+            print(f"DEBUG 9: User created: id={getattr(new_user, 'id', None)}, email={getattr(new_user, 'email', None)}")
+
+            # Build the response
+            user_dict = new_user.to_dict()
             user_dict['message'] = 'User created successfully'
-            print(f"DEBUG 10: Final response ready")
-            
+            print(f"DEBUG 10: Final response ready: {user_dict}")
+
             return user_dict, 201
+
 
         except Exception as e:
             print(f"DEBUG 11: TOP-LEVEL EXCEPTION: {str(e)}")

@@ -39,8 +39,15 @@ class InMemoryRepository(Repository):
     def add(self, obj):
         """Add an object to the global app storage."""
         print(f"[InMemoryRepository.add] Adding object: id={getattr(obj, 'id', None)}, email={getattr(obj, 'email', None)}")
-        storage.new(obj)
-        storage.save()
+        try:
+            from app.models.storage import storage
+            storage.new(obj)
+            storage.save()
+            print("[InMemoryRepository.add] Successfully saved to storage.")
+        except Exception as e:
+            import traceback
+            print(f"[InMemoryRepository.add] ERROR: {e}")
+            print(traceback.format_exc())
 
     def get(self, obj_id):
         """Retrieve object by ID (any class type)."""
