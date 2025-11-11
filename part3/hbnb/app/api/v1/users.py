@@ -59,71 +59,71 @@ class UserList(Resource):
             
             # Check email uniqueness
             print(f"DEBUG 3: Checking email uniqueness for: {user_data['email']}")
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user:
-                print(f"DEBUG: Email already exists")
-                return {'error': 'Email already registered'}, 400
-            
-            print("DEBUG 4: Email is unique")
-
+#            existing_user = facade.get_user_by_email(user_data['email'])
+#            if existing_user:
+#                print(f"DEBUG: Email already exists")
+#                return {'error': 'Email already registered'}, 400
+#            
+#            print("DEBUG 4: Email is unique")
+#
             # Hash the password
-            print("DEBUG 5: Hashing password...")
-            try:
-                password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
-            except Exception as e:
-                print(f" DEBUG: Password hashing failed: {e}")
-                raise
+#            print("DEBUG 5: Hashing password...")
+#            try:
+#                password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+#                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
+#            except Exception as e:
+#                print(f" DEBUG: Password hashing failed: {e}")
+#                raise
 
             # Create user data with hashed password
-            user_data_with_hash = {
-                'first_name': user_data['first_name'],
-                'last_name': user_data['last_name'],
-                'email': user_data['email'],
-                'password': password_hash
-            }
-            print(f"DEBUG 6: Prepared user data: {user_data_with_hash}")
+ #           user_data_with_hash = {
+ #               'first_name': user_data['first_name'],
+ #               'last_name': user_data['last_name'],
+ #               'email': user_data['email'],
+ #               'password': password_hash
+ #           }
 
             # Create a user using facade
-            print("DEBUG 7: Calling facade.create_user()...")
-            try:
-                new_user = facade.create_user(user_data_with_hash)
-                print(f"DEBUG: facade.create_user() returned: {new_user}")
+#            try:
+#                new_user = facade.create_user(user_data_with_hash)
                 
-                if new_user is None:
-                    print("DEBUG: facade.create_user() returned None!")
-                    return {'error': 'Failed to create user'}, 500
+#                if new_user is None:
+#                    return {'error': 'Failed to create user'}, 500
                     
-                print(f"🔍 DEBUG 8: New user attributes:")
-                print(f"   - ID: {getattr(new_user, 'id', 'MISSING')}")
-                print(f"   - First name: {getattr(new_user, 'first_name', 'MISSING')}")
-                print(f"   - Last name: {getattr(new_user, 'last_name', 'MISSING')}")
-                print(f"   - Email: {getattr(new_user, 'email', 'MISSING')}")
-                print(f"   - Password: {getattr(new_user, 'password', 'MISSING')}")
                 
-            except Exception as e:
-                print(f"DEBUG: facade.create_user() raised exception: {e}")
-                import traceback
-                print(f"DEBUG: Traceback from facade:\n{traceback.format_exc()}")
-                raise
+#            except Exception as e:
+#                print(f"DEBUG: facade.create_user() raised exception: {e}")
+#                import traceback
+#                raise
 
             # Try to call to_dict()
-            print("DEBUG 9: Calling to_dict()...")
-            try:
-                user_dict = new_user.to_dict()
-                print(f"DEBUG: to_dict() result: {user_dict}")
-            except Exception as e:
-                print(f"DEBUG: to_dict() failed: {e}")
+#            try:
+#                user_dict = new_user.to_dict()
+#            except Exception as e:
                 # Create manual response as fallback
-                user_dict = {
-                    'id': getattr(new_user, 'id', None),
-                    'first_name': getattr(new_user, 'first_name', None),
-                    'last_name': getattr(new_user, 'last_name', None),
-                    'email': getattr(new_user, 'email', None),
-                    'created_at': getattr(new_user, 'created_at', None),
-                    'updated_at': getattr(new_user, 'updated_at', None)
-                }
-                print(f"DEBUG: Using manual dict: {user_dict}")
+#                user_dict = {
+#                    'id': getattr(new_user, 'id', None),
+#                    'first_name': getattr(new_user, 'first_name', None),
+#                    'last_name': getattr(new_user, 'last_name', None),
+#                    'email': getattr(new_user, 'email', None),
+#                    'created_at': getattr(new_user, 'created_at', None),
+#                    'updated_at': getattr(new_user, 'updated_at', None)
+#                }
+#                print(f"DEBUG: Using manual dict: {user_dict}")
+
+
+            #  Check if email already exists (using SimpleStorage)
+            existing_user = storage.get_by_email(User, user_data["email"]) if hasattr(storage, "get_by_email") else None
+            if existing_user:
+                print(f"DEBUG: Email already exists in SimpleStorage")
+                return {'error': 'Email already registered'}, 400
+
+            #  Create a new user object and store it
+            print("DEBUG 7: Creating User instance and saving via SimpleStorage")
+            new_user = User(**user_data_with_hash)
+            storage.new(new_user)
+            storage.save()  # currently a no-op, but keeps interface consistent
+            print(f"DEBUG: Saved new user {new_user.email} with id {new_user.id}")
 
             user_dict['message'] = 'User created successfully'
             print(f"DEBUG 10: Final response ready")

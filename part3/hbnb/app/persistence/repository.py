@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 class Repository(ABC):
     @abstractmethod
     def add(self, obj):
-        pass
+        pass        
 
     @abstractmethod
     def get(self, obj_id):
@@ -29,28 +29,50 @@ class Repository(ABC):
     def get_by_attribute(self, attr_name, attr_value):
         pass
 
+from app.models.storage import storage  # add this import at top if missing
 
 class InMemoryRepository(Repository):
     def __init__(self):
-        self._storage = {}
+        """This repository just wraps the global SimpleStorage singleton."""
+        pass  # nothing to initialize; all data lives in `storage`
 
     def add(self, obj):
-        self._storage[obj.id] = obj
+        """Add an object to the global app storage."""
+        print(f"[InMemoryRepository.add] Adding object: id={getattr(obj, 'id', None)}, email={getattr(obj, 'email', None)}")
+        storage.new(obj)
+        storage.save()
 
     def get(self, obj_id):
-        return self._storage.get(obj_id)
+        """Retrieve object by ID (any class type)."""
+        for obj in storage.all().values():
+            if getattr(obj, 'id', None) == obj_id:
+                return obj
+        return None
 
     def get_all(self):
-        return list(self._storage.values())
+        """Return a list of all stored objects."""
+        return list(storage.all().values())
 
     def update(self, obj_id, data):
+        """Update attributes and persist."""
         obj = self.get(obj_id)
         if obj:
-            obj.update(data)
+            for key, value in data.items():
+                setattr(obj, key, value)
+            storage.save()
+        return obj
 
     def delete(self, obj_id):
-        if obj_id in self._storage:
-            del self._storage[obj_id]
+        """Delete an object by ID."""
+        obj = self.get(obj_id)
+        if obj:
+            storage.delete(obj)
+            storage.save()
 
     def get_by_attribute(self, attr_name, attr_value):
-        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+        """Find the first object matching a given attribute."""
+        for obj in storage.all().values():
+            if getattr(obj, attr_name, None) == attr_value:
+                return obj
+        return None
+

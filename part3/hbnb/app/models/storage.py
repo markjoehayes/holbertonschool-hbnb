@@ -36,6 +36,15 @@ class SimpleStorage:
         # return the dict (not a copy) because callers expect to iterate values()
         return self._data
 
+        def get_by_email(self, cls, email):
+            """Find a user by email (specific to User)."""
+            cname = cls.__name__ if not isinstance(cls, str) else cls
+            for k, v in self._data.items():
+                if k.startswith(cname + ".") and getattr(v, "email", None) == email:
+                    return v
+            return None
+
+
     def delete(self, obj):
         """Delete an object instance."""
         with self._lock:

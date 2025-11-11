@@ -1,5 +1,5 @@
-from app import bcrypt
 from app.models.storage import storage
+from app import bcrypt
 from app.persistence.repository import InMemoryRepository
 from app.models.place import Place
 from app.models.user import User
@@ -27,12 +27,26 @@ class HBnBFacade:
                 email=user_data['email'],
                 password=hashed_password
         )
-        self.user_repo.add(user)
-        try:
-            storage.save()  # persist change globally!
-        except Exception as e:
-            print(f"[facade.create_user] storage.save() failed: {e}")
+        # DEBUG: show object before saving
+        print(f"[facade.create_user] created User instance: id={getattr(user,'id',None)}, "
+              f"email={getattr(user, 'email', None)}, first={getattr(user,'first_name', None)}")
+        # Explicitly persist to in-memory storage
+        storage.new(user)
+        storage.save()
+        print(f"[facade.create_user] storage.new() called; now srorage contains: ")
+        for k, v in storage.all().items():
+            print(f" {k} -> id={getattr(v, 'id', None)} email={getattr(v, 'email', None)}")
+
+
+#        self.user_repo.add(user)
+#        try:
+#            storage.save()  # persist change globally!
+#        except Exception as e:
+#            print(f"[facade.create_user] storage.save() failed: {e}")
         return user
+    except Exception as e:
+        print(f"[facade.create_user] EXCEPTION: {e}")
+        raise
 
     def get_user(self, user_id):
         """Retrieve a user by ID"""
