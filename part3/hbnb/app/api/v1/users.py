@@ -67,33 +67,34 @@ class UserList(Resource):
 #            print("DEBUG 4: Email is unique")
 #
             # Hash the password
-#            print("DEBUG 5: Hashing password...")
-#            try:
-#                password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-#                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
-#            except Exception as e:
-#                print(f" DEBUG: Password hashing failed: {e}")
-#                raise
+            print("DEBUG 5: Hashing password...")
+            try:
+                password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
+            except Exception as e:
+                print(f" DEBUG: Password hashing failed: {e}")
+                raise
 
             # Create user data with hashed password
- #           user_data_with_hash = {
- #               'first_name': user_data['first_name'],
- #               'last_name': user_data['last_name'],
- #               'email': user_data['email'],
- #               'password': password_hash
- #           }
+            user_data_with_hash = {
+                'first_name': user_data['first_name'],
+                'last_name': user_data['last_name'],
+                'email': user_data['email'],
+                'password': password_hash
+            }
 
             # Create a user using facade
 #            try:
-#                new_user = facade.create_user(user_data_with_hash)
-                
-#                if new_user is None:
-#                    return {'error': 'Failed to create user'}, 500
+            new_user = facade.create_user(user_data_with_hash)
+            storage.new(new_user)
+            storage.save()
+ #               if new_user is None:
+  #                  return {'error': 'Failed to create user'}, 500
                     
                 
-#            except Exception as e:
-#                print(f"DEBUG: facade.create_user() raised exception: {e}")
-#                import traceback
+ #           except Exception as e:
+ #               print(f"DEBUG: facade.create_user() raised exception: {e}")
+ #               import traceback
 #                raise
 
             # Try to call to_dict()

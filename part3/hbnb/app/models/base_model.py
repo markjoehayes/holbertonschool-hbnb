@@ -25,10 +25,19 @@ class BaseModel:
                 setattr(self, key, value)
         self.save()  # Update the updated_at timestamp
 
-    def to_dict(self):
+    def to_dict(self, include_password=False):
         """Convert the object to a dictionary for serialization"""
         obj_dict = self.__dict__.copy()
         obj_dict['__class__'] = self.__class__.__name__
-        obj_dict['created_at'] = self.created_at.isoformat()
-        obj_dict['updated_at'] = self.updated_at.isoformat()
+
+        if "created_at" in obj_dict and isinstance(obj_dict["created_at"], datetime):
+            obj_dict["created_at"] = obj_dict["created_at"].isoformat()
+        if "updated_at" in obj_dict and isinstance(obj_dict["updated_at"], datetime):
+            obj_dict["updated_at"] = obj_dict["updated_at"].isoformat()
+
+        # Exclude password by default unless explicitly requested
+        if not include_password and 'password' in obj_dict:
+            obj_dict.pop('password', None)
+#        obj_dict['created_at'] = self.created_at.isoformat()
+#        obj_dict['updated_at'] = self.updated_at.isoformat()
         return obj_dict    

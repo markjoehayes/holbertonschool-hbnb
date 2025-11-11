@@ -1,0 +1,24 @@
+{
+    "User.048f12e8-437c-41a0-a297-7508ed2c4e96": {
+        "id": "048f12e8-437c-41a0-a297-7508ed2c4e96",
+        "created_at": "2025-11-11T13:09:29.546896",
+        "updated_at": "2025-11-11T13:09:29.546905",
+        "email": "user@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "is_admin": false,
+        "password": "$2b$12$nTBLylcJ.bALBRm1/urFeu9UnbzuG7KGIhhuCaOqdWJEwDzeqoGlS",
+        "__class__": "User"
+    },
+    "User.65f16809-96a2-4dbd-8278-457cb3072ee0": {
+        "id": "65f16809-96a2-4dbd-8278-457cb3072ee0",
+        "created_at": "2025-11-11T13:09:29.547308",
+        "updated_at": "2025-11-11T13:09:29.547310",
+        "email": "user@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "is_admin": false,
+        "password": "$2b$12$7sESx/vVv4HGlD6TdXrqAObanUXSKb.AO8IkKUK1E4saflrz14dgm",
+        "__class__": "User"
+    }
+}

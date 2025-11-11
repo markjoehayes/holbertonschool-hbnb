@@ -52,15 +52,99 @@ class SimpleStorage:
             if key in self._data:
                 del self._data[key]
 
-    def save(self):
-        """
-        Persist changes.
-        For current in-memory implementation this is a no-op (keeps behavior consistent).
-        If later you add file or DB persistence, implement it here.
-        """
+#    def save(self):
+#        """
+#        Persist changes.
+#        For current in-memory implementation this is a no-op (keeps behavior consistent).
+#        If later you add file or DB persistence, implement it here.
+#        """
         # no-op for in-memory simple storage
-        return
+#        return
 
 # singleton instance used by the rest of the app
+#storage = SimpleStorage()
+    def save(self):
+        """Persist the in-memory _data to a JSON file."""
+        import json
+        from app.models.user import User
+
+        try:
+            json_data = {}
+            for key, obj in self._data.items():
+                # Prefer to_dict() for serializable form
+                if hasattr(obj, "to_dict"):
+                    json_data[key] = obj.to_dict(include_password=True)
+                else:
+                    json_data[key] = obj.__dict__
+
+            with open("simple_storage.json", "w", encoding="utf-8") as f:
+                json.dump(json_data, f, indent=4, ensure_ascii=False)
+            print(f"[SimpleStorage.save] Saved {len(json_data)} objects to simple_storage.json")
+        except Exception as e:
+            print(f"[SimpleStorage.save] ERROR: {e}")
+    
+#    def reload(self):
+#        """Load objects from JSON file back into memory."""
+#        import json
+#        import os
+#        from app.models.user import User
+#
+#        filepath = "simple_storage.json"
+#        if not os.path.exists(filepath):
+#            print("[SimpleStorage.reload] No existing file, starting fresh")
+#        return
+
+#        try:
+#            with open(filepath, "r", encoding="utf-8") as f:
+#                data = json.load(f)
+
+#            count = 0
+#            for key, obj_dict in data.items():
+#                cls_name = obj_dict.get("__class__")
+#                if cls_name == "User":
+                    # Recreate user instance
+#                    obj = User(**{
+#                        "id": obj_dict.get("id"),
+#                        "first_name": obj_dict.get("first_name"),
+#                        "last_name": obj_dict.get("last_name"),
+#                        "email": obj_dict.get("email"),
+#                        "password": obj_dict.get("password"),
+#                        "is_admin": obj_dict.get("is_admin", False),
+#                        "created_at": obj_dict.get("created_at"),
+#                        "updated_at": obj_dict.get("updated_at")
+#                    })
+#                    self._data[key] = obj
+#                    count += 1
+#            print(f"[SimpleStorage.reload] Loaded {count} objects from {filepath}")
+#        except Exception as e:
+#            print(f"[SimpleStorage.reload] ERROR: {e}")
+
+    def reload(self):
+        """Load data back from JSON into memory"""
+        import json
+        try:
+            with open("simple_storage.json", "r", encoding="utf-8") as f:
+                json_data = json.load(f)
+
+            for key, value in json_data.items():
+                cls_name = value.get("__class__")
+                if cls_name == "User":
+                    from app.models.user import User
+                    obj = User(
+                        email=value.get("email"),
+                        password=value.get("password"),  # stays hashed
+                        first_name=value.get("first_name"),
+                        last_name=value.get("last_name"),
+                        is_admin=value.get("is_admin", False),
+                    )   
+                    obj.id = value.get("id")
+                    obj.created_at = value.get("created_at")
+                    obj.updated_at = value.get("updated_at")
+                    self._data[key] = obj
+        except FileNotFoundError:
+            print("[SimpleStorage.reload] No file found yet")
+
+# Singleton instance used by the rest of the app
 storage = SimpleStorage()
+storage.reload()
 

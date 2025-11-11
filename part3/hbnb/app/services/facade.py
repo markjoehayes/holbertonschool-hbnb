@@ -11,32 +11,61 @@ class HBnBFacade:
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
-
+    
     def create_user(self, user_data):
         """Create a new user with hashed password"""
-        #user = User(**user_data) #change for security reasons
         try:
-            hashed_password_bytes = bcrypt.generate_password_hash(user_data['password'])
-            try:
-                hashed_password = hashed_password_bytes.decode('utf-8')
-            except AttributeError:
-                hashed_password = hashed_password_bytes
+#            raw_password = user_data.get("password")
+#            if not raw_password:
+#                raise ValueError("Password is required")
 
+            # Hash the password
+#            hashed_password_bytes = bcrypt.generate_password_hash(raw_password)
+#            hashed_password = hashed_password_bytes.decode('utf-8')
+
+            # Create the user and include the hashed password
             user = User(
-                first_name=user_data['first_name'],
-                last_name=user_data['last_name'],
-                email=user_data['email'],
-                password=hashed_password
+                first_name=user_data.get('first_name', ''),
+                last_name=user_data.get('last_name', ''),
+                email=user_data.get('email', ''),
+                password=user_data.get('password', '')
             )
-            # DEBUG: show object before saving
-            print(f"[facade.create_user] created User instance: id={getattr(user,'id',None)}, "
-                  f"email={getattr(user, 'email', None)}, first={getattr(user,'first_name', None)}")
-            # Explicitly persist to in-memory storage
+
+            print(f"[facade.create_user] Created User: {user.email} (hashed password stored inside User class)")
+
             storage.new(user)
             storage.save()
-            print(f"[facade.create_user] storage.new() called; now srorage contains: ")
-            for k, v in storage.all().items():
-                print(f" {k} -> id={getattr(v, 'id', None)} email={getattr(v, 'email', None)}")
+            return user
+
+        except Exception as e:
+            print(f"[facade.create_user] EXCEPTION: {e}")
+            raise
+
+#    def create_user(self, user_data):
+#        """Create a new user with hashed password"""
+        #user = User(**user_data) #change for security reasons
+#        try:
+#            hashed_password_bytes = bcrypt.generate_password_hash(user_data['password'])
+ #           try:
+ #               hashed_password = hashed_password_bytes.decode('utf-8')
+ #           except AttributeError:
+#                hashed_password = hashed_password_bytes
+
+#            user = User(
+#                first_name=user_data['first_name'],
+#                last_name=user_data['last_name'],
+#                email=user_data['email'],
+#                password=hashed_password
+#            )
+            # DEBUG: show object before saving
+ #           print(f"[facade.create_user] created User instance: id={getattr(user,'id',None)}, "
+  #                f"email={getattr(user, 'email', None)}, first={getattr(user,'first_name', None)}")
+            # Explicitly persist to in-memory storage
+ #           storage.new(user)
+ #           storage.save()
+ #           print(f"[facade.create_user] storage.new() called; now srorage contains: ")
+ #           for k, v in storage.all().items():
+ #               print(f" {k} -> id={getattr(v, 'id', None)} email={getattr(v, 'email', None)}")
 
 
 #        self.user_repo.add(user)
@@ -44,10 +73,10 @@ class HBnBFacade:
 #            storage.save()  # persist change globally!
 #        except Exception as e:
 #            print(f"[facade.create_user] storage.save() failed: {e}")
-            return user
-        except Exception as e:
-            print(f"[facade.create_user] EXCEPTION: {e}")
-            raise
+#            return user
+#        except Exception as e:
+#            print(f"[facade.create_user] EXCEPTION: {e}")
+#            raise
 
     def get_user(self, user_id):
         """Retrieve a user by ID"""
