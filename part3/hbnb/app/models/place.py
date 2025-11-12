@@ -1,8 +1,35 @@
+from app import db
 from app.models.base_model import BaseModel
-"""Defines a class for Place"""
+
+# --- Association table for Place <-> Amenity ---
+place_amenities = db.Table(
+    'place_amenities',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
 
 class Place(BaseModel):
     """Defines the Place class with validation"""
+
+    __tablename__ = "places"
+
+    # ----Columns --------
+    title = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.String(255))
+    _price = db.Column("price", db.Float, nullable=False, default=0.0)
+    _latitude = db.Column("latitude", db.Float, default=0.0)
+    _longitude = db.Column("longitude", db.Float, default=0.0)
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+
+    # --- Relationships ---
+    owner = db.relationship("User", back_populates="places")
+    reviews = db.relationship("Review", back_populates="place", cascade="all, delete-orphan")
+    amenities = db.relationship(
+        "Amenity",
+        secondary="place_amenities",
+        back_populates="places"
+    )
+
 
     def __init__(self, title="", description="", price=0.0, latitude=0.0, longitude=0.0, owner=None, owner_id=""):
         
@@ -10,23 +37,18 @@ class Place(BaseModel):
         super().__init__()
         self.title = title
         self.description = description
-
-        #initialize private attributes for properties
-        self._price = 0.0
-        self._latitude = 0.0
-        self._longitude = 0.0
-
+        self._price = price
+        self._latitude = latitude
+        self._longitude = longtitude
         self.owner_id = owner.id if owner else owner_id
-        self.reviews = [] # list to store related reviews
-        self.amenities = [] # list to store related amenities
 
-        # Use property setters to trigger validation
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
+    def add_review(self, review):
+        """Associate a review with this place"""
+        if review not in self.reviews:
+            self.reviews.append(review)
 
-    def __str__(self):
-        return f"Place ({self.id}) {self.title} - ${self.price}"
+    def __repr__(self):
+        return f"<Place {self.id}: {self.title}>"
 
       # Price property with validation
     @property

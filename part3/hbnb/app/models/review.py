@@ -1,7 +1,20 @@
+from app import db
 from app.models.base_model import BaseModel
 
 class Review(BaseModel):
     """Review class that inherits from BaseModel"""
+
+    __tablename__ = "reviews"
+
+    text = db.Column(db.String(500), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
+
+    # Define relationships 
+    user = db.relationship("User", back_populates="reviews")
+    place = db.relationship("Place", back_populates="reviews")
+
     def __init__(self, text="", rating=0, user=None, user_id="", place=None, place_id=""):
         """Initializes Review with defaults"""
         super().__init__()
@@ -16,5 +29,5 @@ class Review(BaseModel):
             raise ValueError("Rating must be between 1 and 5")
         return rating
 
-    def __str__(self):
-        return f"Review ({self.id}): {self.text} - {self.rating}*"
+    def __repr__(self):
+        return f"<Review {self.id} {self.rating}★>"

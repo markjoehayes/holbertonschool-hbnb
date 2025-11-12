@@ -1,18 +1,35 @@
 from app.models.base_model import BaseModel
-from app import bcrypt
+from app import db, bcrypt
 
 class User(BaseModel):
-    """User class that iherits from BaseModel"""
+    """User class that inherits from BaseModel"""
+    __tablename__ = "users"
 
-    def __init__(self, email="", password="", first_name="", last_name="", is_admin=False):
-        """Initialize User with provided default attributes"""
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
-        super().__init__()
-        print(f"[DEBUG User.__init__] Incoming password: {password}")
-        self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
-        self.is_admin = is_admin
+    # relatiionships
+    places = db.relationship("Place", back_populates="owner", cascade="all, delete-orphan")
+    reviews = db.relationship("Review", back_populates="user", cascade="all, delete-orphan")
+
+
+
+    def __init__(self, **kwargs):
+        """Initialize the User and hash password if provided."""
+        password = kwargs.pop("password", None)
+        super().__init__(**kwargs)
+
+#    def __init__(self, email="", password="", first_name="", last_name="", is_admin=False):
+#        """Initialize User with provided default attributes"""
+#
+#        super().__init__()
+#        self.email = email
+#        self.first_name = first_name
+#        self.last_name = last_name
+#        self.is_admin = is_admin
         # hash the password if provided and not already hashed
         if password:
             # check if already hashed - starts with $2b$
@@ -26,7 +43,6 @@ class User(BaseModel):
     def hash_password(self, password):
         """Hashes the password before storing it"""
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-        print(f"[DEBUG User.hash_password] Password hashed to: {self.password[:20]}...")
 
 
     def verify_password(self, password):
