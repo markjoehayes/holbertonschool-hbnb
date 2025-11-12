@@ -26,7 +26,7 @@ class Place(BaseModel):
     reviews = db.relationship("Review", back_populates="place", cascade="all, delete-orphan")
     amenities = db.relationship(
         "Amenity",
-        secondary="place_amenities",
+        secondary=place_amenities,
         back_populates="places"
     )
 
@@ -39,7 +39,7 @@ class Place(BaseModel):
         self.description = description
         self._price = price
         self._latitude = latitude
-        self._longitude = longtitude
+        self._longitude = longitude
         self.owner_id = owner.id if owner else owner_id
 
     def add_review(self, review):
@@ -47,8 +47,11 @@ class Place(BaseModel):
         if review not in self.reviews:
             self.reviews.append(review)
 
-    def __repr__(self):
-        return f"<Place {self.id}: {self.title}>"
+    
+    def add_amenity(self, amenity):
+        """Add an amenity to the place"""
+        if amenity not in self.amenities:
+            self.amenities.append(amenity)
 
       # Price property with validation
     @property
