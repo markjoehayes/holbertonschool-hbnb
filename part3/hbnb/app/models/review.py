@@ -25,6 +25,10 @@ class Review(BaseModel):
 
     def validate_rating(self, rating):
         """Ensure rating is between 1 and 5"""
+        try:
+            rating = int(rating)
+        except (TypeError, ValueError):
+            raise ValueError("Rating must be an integer between 1 and 5")
         if not 1 <= rating <= 5:
             raise ValueError("Rating must be between 1 and 5")
         return rating
