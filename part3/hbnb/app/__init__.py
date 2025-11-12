@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from flask_restx import Api, Namespace
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
@@ -6,8 +7,11 @@ import os
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 
+# Initialize extensions
 bcrypt = Bcrypt()
+jwt = JWTManager()
 load_dotenv()
+db = SQLAlchemy()
 
 def create_app(config_class=None):
     """Application factory function that returns configured flask app instance"""
@@ -40,8 +44,11 @@ def create_app(config_class=None):
     app.config['JWT_SECRET_KEY'] = app.config.get('SECRET_KEY', 'fallback-secret-key')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
-    # Initialize JWT
+    # Initialize extensions
+    bcrypt.init_app(app)
     jwt = JWTManager(app)
+    db.init_app(app)
+
 
     # Initialize API
     api = Api(app, 
@@ -51,7 +58,6 @@ def create_app(config_class=None):
               doc='/api/v1/')
 
     bcrypt.init_app(app)
-    jwt.init_app(app)
 
     # Import and register namespaces
     from app.api.v1.users import api as users_ns
@@ -59,19 +65,6 @@ def create_app(config_class=None):
     from app.api.v1.amenities import api as amenities_ns
     from app.api.v1.reviews import api as reviews_ns
     from app.api.v1.places import api as places_ns
-
-    # Temporary debug
-    print("🔧 DEBUG: Before auth import")
-    try:
-        from app.api.v1.auth import api as auth_ns
-        print("✅ DEBUG: Auth import successful")
-    except Exception as e:
-        print(f"❌ DEBUG: Auth import failed: {e}")
-        import traceback
-        traceback.print_exc()
-        # Create a dummy namespace to avoid crash
-        from flask_restx import Namespace
-        auth_ns = Namespace('auth', description='Authentication operations')
 
 
     print("🔧 DEBUG: Registering namespaces...")

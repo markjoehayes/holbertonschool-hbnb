@@ -1,24 +1,46 @@
 {
-    "User.048f12e8-437c-41a0-a297-7508ed2c4e96": {
-        "id": "048f12e8-437c-41a0-a297-7508ed2c4e96",
-        "created_at": "2025-11-11T13:09:29.546896",
-        "updated_at": "2025-11-11T13:09:29.546905",
-        "email": "user@example.com",
-        "first_name": "Test",
-        "last_name": "User",
+    "User.e6e9f8ca-15a3-4b43-abe7-f37f9877c9f0": {
+        "id": "e6e9f8ca-15a3-4b43-abe7-f37f9877c9f0",
+        "created_at": "2025-11-11T19:57:19.714825",
+        "updated_at": "2025-11-11T19:57:19.714834",
+        "email": "newuser@example.com",
+        "first_name": "Mark",
+        "last_name": "Williams",
         "is_admin": false,
-        "password": "$2b$12$nTBLylcJ.bALBRm1/urFeu9UnbzuG7KGIhhuCaOqdWJEwDzeqoGlS",
+        "password": "$2b$12$wH0jbsep5bML2TEjfIGOfu1O0wKz1j8I7TATYI/Ig0mJG8FmrLT5.",
         "__class__": "User"
     },
-    "User.65f16809-96a2-4dbd-8278-457cb3072ee0": {
-        "id": "65f16809-96a2-4dbd-8278-457cb3072ee0",
-        "created_at": "2025-11-11T13:09:29.547308",
-        "updated_at": "2025-11-11T13:09:29.547310",
-        "email": "user@example.com",
-        "first_name": "Test",
-        "last_name": "User",
+    "User.8348670c-44b0-4dbc-8114-0794a27f0354": {
+        "id": "8348670c-44b0-4dbc-8114-0794a27f0354",
+        "created_at": "2025-11-11T19:57:19.715322",
+        "updated_at": "2025-11-11T19:57:19.715325",
+        "email": "newuser@example.com",
+        "first_name": "Mark",
+        "last_name": "Williams",
         "is_admin": false,
-        "password": "$2b$12$7sESx/vVv4HGlD6TdXrqAObanUXSKb.AO8IkKUK1E4saflrz14dgm",
+        "password": "$2b$12$WPrg7iqEf28kCi2Z.Opq.uP89VgPyncxZywCBCPTs31nEfVk5GL4.",
+        "__class__": "User"
+    },
+    "User.bed6a187-091b-4330-9f1e-3465f01f952d": {
+        "id": "bed6a187-091b-4330-9f1e-3465f01f952d",
+        "created_at": "2025-11-11T20:05:01.473181",
+        "updated_at": "2025-11-11T20:05:01.473191",
+        "email": "anotheruser@example.com",
+        "first_name": "Mark",
+        "last_name": "Hayes",
+        "is_admin": false,
+        "password": "$2b$12$qarxjpxDVUrAJZ/n3DQKNOc7bAP3ETa3peCwTlSMdTz.QcPkv3GHy",
+        "__class__": "User"
+    },
+    "User.40b62f1e-a402-4682-b769-f403ec4a24d2": {
+        "id": "40b62f1e-a402-4682-b769-f403ec4a24d2",
+        "created_at": "2025-11-11T20:05:01.482733",
+        "updated_at": "2025-11-11T20:05:01.482741",
+        "email": "anotheruser@example.com",
+        "first_name": "Mark",
+        "last_name": "Hayes",
+        "is_admin": false,
+        "password": "$2b$12$mYuRdLHizJ4zqVhyQjeyc.e8xhgdlTFKVsbDvV04JfT0Kw3V/ZPN2",
         "__class__": "User"
     }
 }

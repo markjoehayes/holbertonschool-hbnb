@@ -1,17 +1,29 @@
 from app.models.storage import storage
 from app import bcrypt
 from app.persistence.repository import InMemoryRepository
-from app.models.place import Place
 from app.models.user import User
+from app.models.place import Place
+from app.models.review import Review
+from app.models.amenity import Amenity
 from werkzeug.security import generate_password_hash
+from app.persistence.repository import SQLAlchemyRepository
 
 class HBnBFacade:
+    """
+    Facde layer for the Hbnb app.
+    Refactotred to use SQLAlchemyRepository
+    """
+
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
+        self.place_repo = SQLAlchemyRepository(Place) 
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
     
+    #------------------
+    # USER METHODS
+    #-----------------
+
     def create_user(self, user_data):
         """Create a new user with hashed password"""
         try:
@@ -31,7 +43,7 @@ class HBnBFacade:
                 password=user_data.get('password', '')
             )
 
-            print(f"[facade.create_user] Created User: {user.email} (hashed password stored inside User class)")
+            print(f"[facade.create_user] Created User: {user.email}")
 
             storage.new(user)
             storage.save()
@@ -101,6 +113,10 @@ class HBnBFacade:
         user.save()
         return user
 
+    #-------------------
+    # AMENITY METHODS
+    #------------------
+
     def create_amenity(self, amenity_data):
         """Creates a new amenity with validation"""
         try:
@@ -112,8 +128,8 @@ class HBnBFacade:
                 raise ValueError("Amenity name cannot be empty")
             
             # check if amenity with same name already exists
-            existing_amenities = self.get_all_amenities()
-            for amenity in existing_amenities:
+            existing = self.get_all_amenities()
+            for amenity in existing:
                 if amenity.name.lower() == name.lower():
                     raise ValueError(f"Amenity with name '{name}' already exists")
 
@@ -131,172 +147,86 @@ class HBnBFacade:
 
     def get_amenity(self, amenity_id):
         """Retrieve an amenity by ID"""
-        try:
-            if not amenity_id:
-                raise ValueError("Amenity ID is required")
-
-            amenity = self.amenity_repo.get_by_id(amenity_id)
-            if not amenity:
-                raise ValueError(f"Amenity with ID {amenity_id} not found")
-
-            return amenity
-
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error retrieving amenity {amenity_id}: {e}")
-            raise Exception("Failed to retrieve amenity")
+        return self.amenity_repo.get_by_id(amenity_id)
 
     def get_all_amenities(self):
         """Retrieve all amenities"""
-        try:
-            amenities = self.amenity_repo.get_all()
-            return amenities or []
+        return self.amenity_repo.get_all()
 
-        except Exception as e:
-            print(f"Error retrieving all amenities: {e}")
-            raise Exception("Failed to retrieve amenities")
-
-    def update_amenity(self, amenity_id, amenity_data):
+    def update_amenity(self, amenity_id, data):
         """Update an existing amenity"""
-        try:
-            if not amenity_id:
-                raise ValueError("Amenity ID is required")
+        return self.amenity_repo.update(amenity_id, data)
 
-            if not amenity_data:
-                raise ValueError("Update data is required")
 
-            # Check if amenity exists
-            existing_amenity = self.get_amenity(amenity_id)
-            if not existing_amenity:
-                raise ValueError(f"Amenity with ID {amenity_id} not found")
-
-            # Validate name if provided
-            if 'name' in amenity_data:
-                name = amenity_data.get('name', '').strip()
-                if not name:
-                    raise ValueError("Amenity name cannot be empty")
-
-                # Check for duplicate names (excluding current amenity)
-                existing_amenities = self.get_all_amenities()
-                for amenity in existing_amenities:
-                    if (amenity.id != amenity_id and
-                        amenity.name.lower() == name.lower()):
-                        raise ValueError(f"Amenity with name '{name}' already exists")
-
-            # Update amenity - your model's __init__ validation will handle the 50 char limit
-            # Need to create a new Amenity instance to trigger the validation
-            if 'name' in amenity_data:
-                       # This will raise ValueError if name exceeds 50 chars (from your _validate_name)
-                test_amenity = Amenity(name=amenity_data['name'])
-
-            # Prepare update data
-            update_data = {}
-            if 'name' in amenity_data:
-                update_data['name'] = amenity_data['name'].strip()
-
-            # Update amenity
-            updated_amenity = self.amenity_repo.update(amenity_id, update_data)
-            return updated_amenity
-
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error updating amenity {amenity_id}: {e}")
-            raise Exception("Failed to update amenity")
+    #----------------------
+    # PLACE METHODS
+    #---------------------
 
     def create_place(self, place_data):
         """Create a new place with validation"""
         try:
             # Validate required fields
-            required_fields = ['title', 'price', 'owner_id']
-            for field in required_fields:
-                if field not in place_data:
-                    raise ValueError(f"{field} is required")
+            #required_fields = ['title', 'price', 'owner_id']
+            #for field in required_fields:
+            #    if field not in place_data:
+            #        raise ValueError(f"{field} is required")
+
+            # Normalize field naming between API and model
+            name = place_data.get("title") or place_data.get("name")
+            if not name:
+                raise ValueError("Place name (or title) is required")
+            if "owner_id" not in place_data:
+                raise ValueError("owner_id is required")
+            if "price" not in place_data:
+                raise ValueError("price is required")
 
             # Create new place - this will trigger validation in the Place class
             new_place = Place(
                 title=place_data['title'],
                 description=place_data.get('description', ''),
-                price=place_data['price'],
+                price=place_data.get('price'),
                 latitude=place_data.get('latitude', 0.0),
                 longitude=place_data.get('longitude', 0.0),
                 owner_id=place_data['owner_id']
             )
+            
+            # Persist to storage
+            new_place.save()
 
-            # Handle amenities if provided
-            if 'amenities' in place_data:
-                for amenity_id in place_data['amenities']:
-                    pass
-
-            # Save to repository
-            self.place_repo.add(new_place)
+            print(f"[facade.create_place] Created place: {new_place.title} (id={new_place.id})")
             return new_place
 
-        except ValueError as e:
-            # Re-raise validation errors from Place class
+            # Handle amenities if provided
+            #if 'amenities' in place_data:
+            #    for amenity_id in place_data['amenities']:
+            #        pass
+
+            # Save to repository
+            #self.place_repo.add(new_place)
+            #return new_place
+
+        except Exception as e:
             raise e
         except Exception as e:
-            print(f"Error creating place: {e}")
+            print(f"[facade.create_place] Error: {e}")
             raise Exception("Failed to create place")
 
     def get_place(self, place_id):
         """Retrieve a place by ID"""
-        try:
-            if not place_id:
-                raise ValueError("Place ID is required")
-
-            place = self.place_repo.get(place_id)
-            if not place:
-                raise ValueError(f"Place with ID {place_id} not found")
-
-            return place
-
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error retrieving place {place_id}: {e}")
-            raise Exception("Failed to retrieve place")
+        return self.place_repo.get(place_id)
 
     def get_all_places(self):
         """Retrieve all Places"""
-        try:
-            places = self.place_repo.get_all()
-            return places or []
-
-        except Exception as e:
-            print(f"Error retrieving all places: {e}")
-            raise Exception("Failed to retrieve places")
+        return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
         """Update an existing place"""
-        try:
-            if not place_id:
-                raise ValueError("Place ID is required")
+        return self.place_repo.update(place_id, data)
 
-            if not place_data:
-                raise ValueError("Update data is required")
+    #-------------------------
+    # REVIEW METHODS
+    #---------------------------
 
-            # Check if place exists
-            existing_place = self.get_place(place_id)
-            if not existing_place:
-                raise ValueError(f"Place with ID {place_id} not found")
-
-            # Validate and update fields
-            updatable_fields = ['title', 'description', 'price', 'latitude', 'longitude']
-
-            for field in updatable_fields:
-                if field in place_data:
-                    # Use property setters for validation (for price, latitude, longitude)
-                    setattr(existing_place, field, place_data[field])
-
-            return existing_place
-
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error updating place {place_id}: {e}")
-            raise Exception("Failed to update place")
 
     def create_review(self, review_data):
         """Create a new review with validation"""
@@ -347,117 +277,25 @@ class HBnBFacade:
 
     def get_review(self, review_id):
         """Retrieve a review by ID"""
-        try:
-            if not review_id:
-                raise ValueError("Review ID is required")
-        
-            review = self.review_repo.get(review_id)
-            if not review:
-                raise ValueError(f"Review with ID {review_id} not found")
-        
-            return review
-        
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error retrieving review {review_id}: {e}")
-            raise Exception("Failed to retrieve review")
+        return self.review_repo.get(review_id)
 
     def get_all_reviews(self):
         """Retrieve all reviews"""
-        try:
-            reviews = self.review_repo.get_all()
-            return reviews or []
+        return self.review_repo.get_all()
         
-        except Exception as e:
-            print(f"Error retrieving all reviews: {e}")
-            raise Exception("Failed to retrieve reviews")
-
     def get_reviews_by_place(self, place_id):
         """Retrieve all reviews for a specific place"""
-        try:
-            if not place_id:
-                raise ValueError("Place ID is required")
+        # Get all reviews and filter by place_id
+        all_reviews = self.review_repo.get_all()
+        return [review for review in all_reviews if review.place_id == place_id]
         
-            # Validate place exists
-            place = self.place_repo.get(place_id)
-            if not place:
-                raise ValueError(f"Place with ID {place_id} not found")
-        
-            # Get all reviews and filter by place_id
-            all_reviews = self.get_all_reviews()
-            place_reviews = [review for review in all_reviews if review.place_id == place_id]
-        
-            return place_reviews
-        
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error retrieving reviews for place {place_id}: {e}")
-            raise Exception("Failed to retrieve reviews for place")
-
     def update_review(self, review_id, review_data):
         """Update a review"""
-        try:
-            if not review_id:
-                raise ValueError("Review ID is required")
-        
-            if not review_data:
-                raise ValueError("Update data is required")
-        
-            # Check if review exists
-            existing_review = self.get_review(review_id)
-            if not existing_review:
-                raise ValueError(f"Review with ID {review_id} not found")
-        
-            # Validate and update fields
-            updatable_fields = ['text', 'rating']
-        
-            for field in updatable_fields:
-                if field in review_data:
-                    if field == 'text':
-                        # Validate text is not empty
-                        text = review_data['text'].strip()
-                        if not text:
-                            raise ValueError("Review text cannot be empty")
-                        existing_review.text = text
-                    elif field == 'rating':
-                        # Use the validate_rating method
-                        existing_review.rating = existing_review.validate_rating(review_data['rating'])
-        
-            return existing_review
-        
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error updating review {review_id}: {e}")
-            raise Exception("Failed to update review")
+        return self.review_repo.update(review_id, review_data)
 
     def delete_review(self, review_id):
         """Delete a review"""
-        try:
-            if not review_id:
-                raise ValueError("Review ID is required")
-        
-            # Check if review exists
-            review = self.get_review(review_id)
-            if not review:
-                raise ValueError(f"Review with ID {review_id} not found")
-        
-            # Remove from place's reviews list if place exists
-            place = self.place_repo.get(review.place_id)
-            if place and review in place.reviews:
-                place.reviews.remove(review)
-        
-            # Delete from repository
-            self.review_repo.delete(review_id)
-            return True
-        
-        except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error deleting review {review_id}: {e}")
-            raise Exception("Failed to delete review")
+        return self.review_repo.update(review_id, review_data)
 
-    #create a single global instance
+#create a single global instance
 facade = HBnBFacade()
