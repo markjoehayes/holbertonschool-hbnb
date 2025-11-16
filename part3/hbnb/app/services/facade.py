@@ -10,7 +10,7 @@ from app.persistence.repository import SQLAlchemyRepository
 
 class HBnBFacade:
     """
-    Facde layer for the Hbnb app.
+    Facade layer for the Hbnb app.
     Refactotred to use SQLAlchemyRepository
     """
 
@@ -34,7 +34,6 @@ class HBnBFacade:
                 password=user_data.get('password', '')
             )
 
-            print(f"[facade.create_user] Created User: {user.email}")
             self.user_repo.add(user)
             return user
 
@@ -56,12 +55,12 @@ class HBnBFacade:
         if not user:
             raise ValueError("User not found")
     
-         # Update allowed fields only
-        if 'first_name' in user_data:
-            user.first_name = user_data['first_name']
-        if 'last_name' in user_data:
-            user.last_name = user_data['last_name']
+        # Update allowed fields only
     
+        for field in ("first_name", "last_name"):
+            if field in user_data:
+                setattr(user, field, user_data[field])
+
         user.save()
         return user
 
@@ -72,15 +71,21 @@ class HBnBFacade:
     def create_amenity(self, amenity_data):
         """Creates a new amenity with validation"""
         try:
-            if not amenity_data['name'] or 'name' not in amenity_data:
+            name = amenity_data.get("name")
+            if not name:
                 raise ValueError("Amenity name is required")
 
-        except ValueError as ve:
-            print(f"[facade.create_amenity] Validation error: {ve}")
-            raise
+            amenity = Amenity(
+                name=name,
+                description=amenity_data.get("description")
+            )
+
+            self.amenity_repo.add(amenity)
+            return amenity
+
         except Exception as e:
-            print(f"[facade.create_amenity] Unexpected error: {e}")
-            raise Exception("Failed to create amenity")
+            print(f"[facade.create_amenity] Error: {e}")
+            raise
 
     def get_amenity(self, amenity_id):
         """Retrieve an amenity by ID"""
@@ -122,15 +127,11 @@ class HBnBFacade:
                 if field not in place_data:
                     raise ValueError(f"{field} is required")
 
-            # Normalize field naming between API and model
-            title = place_data.get("title") or place_data.get("name")
-            if not name:
-                raise ValueError("Place name (or title) is required")
 
             # Create new place - this will trigger validation in the Place class
             new_place = Place(
-                title=title,
-                description=place_data.get('description', ''),
+                title=place_data.get("title"),
+                description=place_data.get('description'),
                 price=place_data.get('price'),
                 latitude=place_data.get('latitude', 0.0),
                 longitude=place_data.get('longitude', 0.0),
@@ -138,14 +139,12 @@ class HBnBFacade:
                 )
             
             # Persist to storage
-            self.place_repo.add(new_place)            
-
-            print(f"[facade.create_place] Created place: {new_place.title} (id={new_place.id})")
+            self.place_repo.add(new_place)   
             return new_place
 
         except Exception as e:
             print(f"[facade.create_place] Error: {e}")
-            raise Exception("Failed to create place")
+            raise 
 
     def get_place(self, place_id):
         """Retrieve a place by ID"""
@@ -186,7 +185,7 @@ class HBnBFacade:
             # Validate required fields
             required_fields = ['text', 'rating', 'user_id', 'place_id']
             for field in required_fields:
-                if field not in review_data or not review_data[field]:
+                if field not in review_data:
                     raise ValueError(f"{field} is required")
         
             # Build Review object
@@ -200,18 +199,13 @@ class HBnBFacade:
             self.review_repo.add(new_review)
 
             # Add review to place's reviews list
-            place.add_review(new_review)
+            #place.add_review(new_review)
 
-            print(f"[facade.create_review] Created review id={new_review_id}")
             return new_review
-
-        except ValueError as ve:
-             print(f"[facade.create_review] Validation error: {ve}")
-             raise
 
         except Exception as e:
             print(f"Error creating review: {e}")
-            raise Exception("Failed to create review")
+            raise 
 
     def get_review(self, review_id):
         """Retrieve a review by ID"""
@@ -223,10 +217,8 @@ class HBnBFacade:
         
     def get_reviews_by_place(self, place_id):
         """Retrieve all reviews for a specific place"""
-        # Get all reviews and filter by place_id
-        all_reviews = self.review_repo.get_all()
-        return [review for review in all_reviews if review.place_id == place_id]
-        
+        return self.review_repo.filter_by(place_id=place_id)
+
     def update_review(self, review_id, review_data):
         """Update a review"""
         try:
@@ -245,9 +237,10 @@ class HBnBFacade:
         except Exception as e:
             print(f"[facade.update_review] Error: {e}")
             raise
+
     def delete_review(self, review_id):
         """Delete a review"""
-        return self.review_repo.update(review_id, review_data)
+        return self.review_repo.delete(review_id)
 
 #create a single global instance
 facade = HBnBFacade()
