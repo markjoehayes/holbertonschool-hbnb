@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+from flask_cors import CORS
 
 # Initialize extensions
 bcrypt = Bcrypt()
@@ -33,6 +34,9 @@ def create_app(config_class=None):
 
 
     app = Flask(__name__)
+
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
     # load configuration from the specified class
     try:
         app.config.from_object(config_class)
@@ -67,25 +71,21 @@ def create_app(config_class=None):
     from app.api.v1.places import api as places_ns
 
 
-    print("🔧 DEBUG: Registering namespaces...")
     
     api.add_namespace(amenities_ns, path='/api/v1/amenities')
-    print("✅ DEBUG: Amenities namespace registered")
     
     api.add_namespace(reviews_ns, path='/api/v1/reviews') 
-    print("✅ DEBUG: Reviews namespace registered")
     
     api.add_namespace(places_ns, path='/api/v1/places')
-    print("✅ DEBUG: Places namespace registered")
     
     api.add_namespace(users_ns, path='/api/v1/users')
-    print("✅ DEBUG: Users namespace registered")
     
     api.add_namespace(auth_ns, path='/api/v1/auth')
-    print("✅ DEBUG: Auth namespace registered")
+
+    from app.web.routes import bp as web_bp
+    app.register_blueprint(web_bp, url_prefix='/web')
     
     # Debug: List all registered routes
-    print("🔧 DEBUG: All registered routes:")
     for rule in app.url_map.iter_rules():
         print(f"  {rule.rule} -> {rule.endpoint}")
     

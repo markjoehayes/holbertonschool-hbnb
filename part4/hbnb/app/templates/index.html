@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Holberton BnB - Places{% endblock %}
+
+{% block content %}
+<div class="places-container">
+    <h1>Available Places</h1>
+    <div class="filter-section">
+        <label for="country-filter">Filter by Country:</label>
+        <select id="country-filter">
+            <option value="">All Countries</option>
+            <!-- Countries populated via JavaScript -->
+        </select>
+    </div>
+    
+    <div class="places-grid" id="placesGrid">
+        <!-- Places populated via JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/places.js') }}"></script>
+{% endblock %}
