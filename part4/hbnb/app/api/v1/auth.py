@@ -40,3 +40,10 @@ class ProtectedResource(Resource):
                 'message': f'Hello, user {current_user}',
                 'is_admin': is_admin
                 }, 200
+
+@api.route('/Logout')
+class logout(Resource):
+    def post(self):
+        response = jsonify({"message": "Logged out successfully"})
+        unset_jwt_cookies(response)
+        return response, 200

@@ -59,7 +59,10 @@ def create_app(config_class=None):
               version='1.0', 
               title='HBnB API', 
               description='HBnB Application API', 
-              doc='/api/v1/')
+              doc='/api/v1/',
+              prefix='/api/v1'
+              )
+            
 
     bcrypt.init_app(app)
 
@@ -82,8 +85,21 @@ def create_app(config_class=None):
     
     api.add_namespace(auth_ns, path='/api/v1/auth')
 
-    from app.web.routes import bp as web_bp
-    app.register_blueprint(web_bp, url_prefix='/web')
+    from flask import render_template
+
+    @app.route("/")
+    def index():
+        return render_template("index.html")
+
+    @app.route("/login")
+    def login():
+        return render_template("login.html")
+
+    @app.route("/place/<id>")
+    def place(id):
+        return render_template("place.html", place_id=id)
+
+
     
     # Debug: List all registered routes
     for rule in app.url_map.iter_rules():

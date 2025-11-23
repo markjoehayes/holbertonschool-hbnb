@@ -15,8 +15,8 @@
             </div>
             <ul class="nav-links">
                 <li><a href="{{ url_for('index') }}">Home</a></li>
-                {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('logout') }}" class="login-button">Logout</a></li>
+                {% if current_user is defined and current_user.is_authenticated %}
+                    <li><a href="#" onclick="logout()"  class="login-button">Logout</a></li>
                 {% else %}
                     <li><a href="{{ url_for('login') }}" class="login-button">Login</a></li>
                 {% endif %}
