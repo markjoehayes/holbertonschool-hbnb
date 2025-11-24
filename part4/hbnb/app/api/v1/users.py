@@ -59,7 +59,7 @@ class UserList(Resource):
                 return {'error': 'Email already registered'}, 400
 
             # Hash the password
-            password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+            password_hash = bcrypt.generate_password_hash(user_data['password'])
 
             # Create a new user object directly
             from app.models.user import User
