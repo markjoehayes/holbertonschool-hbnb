@@ -35,6 +35,8 @@ class HBnBFacade:
             )
 
             self.user_repo.add(user)
+            self.user_repo.commit()
+
             return user
 
         except Exception as e:

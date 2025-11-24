@@ -1,3 +1,7 @@
+from sqlalchemy import Column, String, Boolean
+from sqlalchemy.orm import declarative_base
+import datetime
+import uuid
 from app.models.base_model import BaseModel
 from app import db, bcrypt
 
