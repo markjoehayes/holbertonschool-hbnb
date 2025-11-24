@@ -46,112 +46,42 @@ class UserList(Resource):
         """Register a new user"""
         try:
             user_data = api.payload
-            print(f"DEBUG 1: Received user data: {user_data}")
-            
+
             # Validate required fields
-            required_fields = ['first_name', 'last_name', 'email', 'password']
-            for field in required_fields:
-                if field not in user_data:
-                    print(f"DEBUG: Missing field {field}")
+            for field in ['first_name', 'last_name', 'email', 'password']:
+                if not user_data.get(field):
                     return {'error': f'Missing required field: {field}'}, 400
 
-            print("DEBUG 2: All required fields present")
-            
-            # Check email uniqueness
-            print(f"DEBUG 3: Checking email uniqueness for: {user_data['email']}")
-#            existing_user = facade.get_user_by_email(user_data['email'])
-#            if existing_user:
-#                print(f"DEBUG: Email already exists")
-#                return {'error': 'Email already registered'}, 400
-#            
-#            print("DEBUG 4: Email is unique")
-#
-            # Hash the password
-            print("DEBUG 5: Hashing password...")
-            try:
-                password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
-                print(f"DEBUG: Password hash created: {password_hash[:20]}...")
-            except Exception as e:
-                print(f" DEBUG: Password hashing failed: {e}")
-                raise
-
-            # Create user data with hashed password
-            user_data_with_hash = {
-                'first_name': user_data['first_name'],
-                'last_name': user_data['last_name'],
-                'email': user_data['email'],
-                'password': password_hash
-            }
-
-            # Create a user using facade
-#            try:
-            new_user = facade.create_user(user_data_with_hash)
-            storage.new(new_user)
-            storage.save()
- #               if new_user is None:
-  #                  return {'error': 'Failed to create user'}, 500
-                    
-                
- #           except Exception as e:
- #               print(f"DEBUG: facade.create_user() raised exception: {e}")
- #               import traceback
-#                raise
-
-            # Try to call to_dict()
-#            try:
-#                user_dict = new_user.to_dict()
-#            except Exception as e:
-                # Create manual response as fallback
-#                user_dict = {
-#                    'id': getattr(new_user, 'id', None),
-#                    'first_name': getattr(new_user, 'first_name', None),
-#                    'last_name': getattr(new_user, 'last_name', None),
-#                    'email': getattr(new_user, 'email', None),
-#                    'created_at': getattr(new_user, 'created_at', None),
-#                    'updated_at': getattr(new_user, 'updated_at', None)
-#                }
-#                print(f"DEBUG: Using manual dict: {user_dict}")
-
-
-            #  Check if email already exists (using SimpleStorage)
-#            existing_user = storage.get_by_email(User, user_data["email"]) if hasattr(storage, "get_by_email") else None
- #           if existing_user:
- #               print(f"DEBUG: Email already exists in SimpleStorage")
- #               return {'error': 'Email already registered'}, 400
-#
-            #  Create a new user object and store it
-#            print("DEBUG 7: Creating User instance and saving via SimpleStorage")
-#            new_user = facade.create_user(user_data)
-#            storage.new(new_user)
-#            storage.save()  # currently a no-op, but keeps interface consistent
-#            print(f"DEBUG: Saved new user {new_user.email} with id {new_user.id}")
-#
-#            user_dict['message'] = 'User created successfully'
-#            print(f"DEBUG 10: Final response ready")
-#            
-#            return user_dict, 201
-                        # Check if email already exists (using SimpleStorage)
-            existing_user = storage.get_by_attribute("email", user_data["email"]) if hasattr(storage, "get_by_attribute") else None
+            # Check if email already exists
+            existing_user = storage.get_by_attribute("email", user_data["email"]) \
+                if hasattr(storage, "get_by_attribute") else None
             if existing_user:
-                print(f"DEBUG: Email already exists in SimpleStorage")
                 return {'error': 'Email already registered'}, 400
 
-            # Create a new user object and store it through the facade
-            print("DEBUG 7: Creating User instance via facade.create_user()")
-            new_user = facade.create_user(user_data)
+            # Hash the password
+            password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
 
-            if not new_user:
-                print("DEBUG 8: Facade returned None — user creation failed")
-                return {'error': 'Failed to create user'}, 500
+            # Create a new user object directly
+            from app.models.user import User
+            new_user = User(
+                first_name=user_data['first_name'],
+                last_name=user_data['last_name'],
+                email=user_data['email'],
+                password=password_hash
+            )
 
-            print(f"DEBUG 9: User created: id={getattr(new_user, 'id', None)}, email={getattr(new_user, 'email', None)}")
+            # Save the user
+            storage.new(new_user)
+            storage.save()
 
             # Build the response
             user_dict = new_user.to_dict()
             user_dict['message'] = 'User created successfully'
-            print(f"DEBUG 10: Final response ready: {user_dict}")
-
             return user_dict, 201
+
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            return {'error': f'Internal server error: {str(e)}'}, 500
 
 
         except Exception as e:
