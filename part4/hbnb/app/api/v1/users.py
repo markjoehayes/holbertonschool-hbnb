@@ -72,20 +72,16 @@ class UserList(Resource):
                 return {'error': 'Email already registered'}, 400
 
             # Hash the password
-            password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+            hashed_password = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
 
-            # Create a new user object directly
-            from app.models.user import User
-            new_user = User(
-                first_name=user_data['first_name'],
-                last_name=user_data['last_name'],
-                email=user_data['email'],
-                password=password_hash
-            )
+            # Put the hashed password in the payload
+            user_data['password'] = hashed_password
 
-            # Save the user
-            storage.new(new_user)
-            storage.save()
+            # Use the facade to create the user
+            new_user = facade.create_user(user_data)
+
+            # Debug print 
+            print(f"DEBUG: new_user object: {new_user}")
 
             # Build the response
             user_dict = new_user.to_dict()
@@ -96,12 +92,6 @@ class UserList(Resource):
             print(f"Error creating user: {e}")
             return {'error': f'Internal server error: {str(e)}'}, 500
 
-
-        except Exception as e:
-            print(f"DEBUG 11: TOP-LEVEL EXCEPTION: {str(e)}")
-            import traceback
-            print(f"DEBUG 12: FULL TRACEBACK:\n{traceback.format_exc()}")
-            return {'error': f'Internal server error: {str(e)}'}, 500
 
     @api.response(200, 'List of all users')
     def get(self):

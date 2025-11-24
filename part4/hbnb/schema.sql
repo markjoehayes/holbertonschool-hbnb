@@ -10,12 +10,12 @@ DROP TABLE IF EXISTS place_amenity;
 DROP TABLE IF EXISTS review;
 DROP TABLE IF EXISTS amenity;
 DROP TABLE IF EXISTS place;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS users;
 
 -- ================================
 -- USER TABLE
 -- ================================
-CREATE TABLE user (
+CREATE TABLE users (
     id CHAR(36) PRIMARY KEY,
     first_name VARCHAR(255),
     last_name VARCHAR(255),

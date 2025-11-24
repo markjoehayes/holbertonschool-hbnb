@@ -22,16 +22,32 @@ login_model = api.model('Login', {
 class Login(Resource):
     @api.expect(login_model)
     def post(self):
-        data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
+        """Authenticate a user and return a JWT token"""
+        try:
+            data = request.get_json()
+            if not data or 'email' not in data or 'password' not in data:
+                return {"error": "Email and password required"}, 400
 
-        user = facade.get_user_by_email(email)
-        if not user or not bcrypt.check_password_hash(user.password, password):
-            return {'error': 'Invalid credentials'}, 401
+            email = data['email']
+            password = data['password']
 
-        access_token = create_access_token(identity=user.id)
-        return {'access_token': access_token}, 200
+            # Use facade method to get user from the real DB
+            user = facade.get_user_by_email(email)
+
+            if not user:
+                return {"error": "Invalid credentials"}, 401
+
+            # Check password
+            if not bcrypt.check_password_hash(user.password, password):
+                return {"error": "Invalid credentials"}, 401
+
+            # Create JWT token
+            access_token = create_access_token(identity=str(user.id))
+            return {"access_token": access_token}, 200
+
+        except Exception as e:
+            print(f"[Login.post] EXCEPTION: {e}")
+            return {"error": "Internal server error"}, 500
 
 # ---------------- PROTECTED ----------------
 @api.route('/protected')

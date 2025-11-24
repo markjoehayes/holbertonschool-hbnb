@@ -1,5 +1,4 @@
 # app/models/storage.py
-"""A simple in-memory storage singleton with a small API expected by the app."""
 
 import threading
 
@@ -145,6 +144,8 @@ class SimpleStorage:
             print("[SimpleStorage.reload] No file found yet")
 
 # Singleton instance used by the rest of the app
-storage = SimpleStorage()
-storage.reload()
+#storage = SimpleStorage()
+#storage.reload()a
+from app.models.engine.db_storage import DBStorage
+storage = DBStorage
 
