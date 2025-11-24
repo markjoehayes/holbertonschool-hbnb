@@ -33,7 +33,10 @@ def create_app(config_class=None):
             print("Loading Development Configuration")
 
 
-    app = Flask(__name__)
+    app = Flask(__name__,
+                static_folder="static",
+                template_folder="templates"
+                )
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 

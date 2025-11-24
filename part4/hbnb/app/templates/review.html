@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Add Review{% endblock %}
+
+{% block content %}
+<div class="add-review">
+    <h2>Add Review</h2>
+    <form id="addReviewForm" class="review-form">
+        <label for="review-text">Review:</label>
+        <textarea id="review-text" required></textarea>
+
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" id="rating" min="1" max="5" required>
+
+        <button type="submit" class="submit-btn">Submit Review</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/review.js') }}"></script>
+{% endblock %}
+
