@@ -5,9 +5,22 @@ from app.models.storage import storage
 from app.services import facade
 from app import bcrypt
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.api.v1 import api as api_root
 
 # Initialize facade
 #facade = HBnBFacade()
+
+
+# Register a global User model on the top-level Api so Swagger can find it
+api_root.model('User', {
+    'id': fields.String(description='User ID'),
+    'first_name': fields.String(description='First name'),
+    'last_name': fields.String(description='Last name'),
+    'email': fields.String(description='Email'),
+    'created_at': fields.String(description='Creation timestamp'),
+    'updated_at': fields.String(description='Last update timestamp')
+})
+
 
 api = Namespace('users', description='User operations')
 
@@ -59,7 +72,7 @@ class UserList(Resource):
                 return {'error': 'Email already registered'}, 400
 
             # Hash the password
-            password_hash = bcrypt.generate_password_hash(user_data['password'])
+            password_hash = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
 
             # Create a new user object directly
             from app.models.user import User
