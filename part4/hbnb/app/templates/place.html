@@ -1,34 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Place Details - Holberton BnB{% endblock %}
+{% block title %}Holberton BnB - Place Details{% endblock %}
 
 {% block content %}
-<div class="place-details" id="placeDetails">
-    <!-- JS populates: name, host, price, description, amenities -->
+<!-- Login link (shown only if user is not authenticated) -->
+<a id="login-link" href="/login" style="display: none;">Login</a>
+
+<div class="place-container">
+    <h1 id="place-name">Place Name</h1>
+
+    <div id="place-details">
+        <!-- Place details will be dynamically inserted via JS -->
+    </div>
+
+    <!-- Add Review Section (shown only if user is authenticated) -->
+    <div id="add-review" style="display: none;">
+        <h2>Add a Review</h2>
+        <form id="review-form">
+            <label for="review-text">Your Review:</label><br>
+            <textarea id="review-text" name="review-text" rows="4" cols="50"></textarea><br>
+            <button type="submit">Submit Review</button>
+        </form>
+        <div id="review-error" style="color: red; margin-top: 10px;"></div>
+    </div>
+
+    <!-- Reviews List -->
+    <div id="reviews-list">
+        <h2>Reviews</h2>
+        <!-- Reviews will be dynamically inserted via JS -->
+    </div>
 </div>
-
-<h2>Reviews</h2>
-<div id="reviews" class="reviews-container">
-    <!-- JS populates review cards -->
-</div>
-
-{% if current_user is defined and current_user.is_authenticated %}
-<div class="add-review">
-    <h3>Add a Review</h3>
-    <form id="reviewForm" class="review-form">
-        <label for="review-text">Review:</label>
-        <textarea id="review-text" required></textarea>
-
-        <label for="rating">Rating (1-5):</label>
-        <input type="number" id="rating" min="1" max="5" required>
-
-        <button type="submit" class="submit-btn">Submit</button>
-    </form>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/place.js') }}"></script>
+<script src="{{ url_for('static', filename='js/places.js') }}"></script>
 {% endblock %}
 
