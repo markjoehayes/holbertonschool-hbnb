@@ -228,3 +228,5 @@ class UserResource(Resource):
             return {'error': str(e)}, 400
         except Exception as e:
             return {'error': f'Internal server error: {str(e)}'}, 500
+
+UserList = UserList

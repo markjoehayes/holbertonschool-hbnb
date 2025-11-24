@@ -1,9 +1,13 @@
 from app import bcrypt
 from flask import request, jsonify
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token, 
+    jwt_required, 
+    get_jwt_identity,
+    unset_jwt_cookies
+)
 from app.services import facade
-from app.models.storage import storage
 
 api = Namespace('auth', description='Authentication operations')
 
@@ -11,10 +15,12 @@ api = Namespace('auth', description='Authentication operations')
 login_model = api.model('Login', {
     'email': fields.String(required=True, description='User email'),
     'password': fields.String(required=True, description='User password')
-    })
+})
 
+# ---------------- LOGIN ----------------
 @api.route('/login')
 class Login(Resource):
+    @api.expect(login_model)
     def post(self):
         data = request.get_json()
         email = data.get('email')
@@ -27,23 +33,25 @@ class Login(Resource):
         access_token = create_access_token(identity=user.id)
         return {'access_token': access_token}, 200
 
+# ---------------- PROTECTED ----------------
 @api.route('/protected')
 class ProtectedResource(Resource):
     @jwt_required()
     def get(self):
-        """A protected endpoint that requires a valid JWT token"""
-        current_user = get_jwt_identity() # Retrieve the user's identitiy form the token
-        additional_claims = get_jwt()
-        is_admin = claims.get("is_admin", False)
-
+        current_user = get_jwt_identity()
+        # Add admin claim if you have it
+        # For now, just return False
+        is_admin = False
         return {
-                'message': f'Hello, user {current_user}',
-                'is_admin': is_admin
-                }, 200
+            'message': f'Hello, user {current_user}',
+            'is_admin': is_admin
+        }, 200
 
-@api.route('/Logout')
-class logout(Resource):
+# ---------------- LOGOUT ----------------
+@api.route('/logout')  # lowercase and consistent with /login
+class Logout(Resource):
     def post(self):
         response = jsonify({"message": "Logged out successfully"})
         unset_jwt_cookies(response)
         return response, 200
+
