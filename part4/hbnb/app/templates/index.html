@@ -3,18 +3,32 @@
 {% block title %}Holberton BnB - Places{% endblock %}
 
 {% block content %}
+<!-- Login link (shown only if user is not authenticated) -->
+<a id="login-link" href="/login" style="display: none;">Login</a>
+
 <div class="places-container">
     <h1>Available Places</h1>
+
+    <!-- Filter Section -->
     <div class="filter-section">
         <label for="country-filter">Filter by Country:</label>
         <select id="country-filter">
             <option value="">All Countries</option>
-            <!-- Countries populated via JavaScript -->
+            <!-- Countries will be populated via JS -->
+        </select>
+
+        <label for="price-filter">Filter by Price:</label>
+        <select id="price-filter">
+            <option value="All">All</option>
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
         </select>
     </div>
-    
+
+    <!-- Places Grid -->
     <div class="places-grid" id="placesGrid">
-        <!-- Places populated via JavaScript -->
+        <!-- Places will be dynamically inserted via JS -->
     </div>
 </div>
 {% endblock %}
@@ -22,3 +36,4 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/places.js') }}"></script>
 {% endblock %}
+
