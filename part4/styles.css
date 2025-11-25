@@ -1,0 +1,157 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: orange;
+    color: #fff;
+    padding: 1rem;
+}
+
+.login-button {
+	float: right;
+	margin-top: 20px;
+	background-color: orange;
+  	border: none;
+  	padding: 0.5rem 1rem;
+  	margin-top: 1rem;
+  	cursor: pointer;
+  	border-radius: 5px;
+  	color: white;
+  	font-weight: bold;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+main {
+    padding: 2rem;
+}
+
+.place-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  min-height: 200px;
+  text-align: center;
+  align-content: center;
+}
+
+.review-card {
+  background-color: #fff;
+  width: 100%;
+  max-width: 500px;
+  margin: 1rem auto;
+  padding: 1rem;
+  text-align: left;
+}
+
+#places-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.details-button {
+  background-color: orange;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+}
+
+footer p {
+	background-color: orange;
+	color: white;
+	text-align: center;
+}
+
+h2 {
+	text-align: center;
+}
+
+#filter {
+	text-align: center;
+}
+
+#reviews h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+#add-review {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+form {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.logo {
+  height: 40px;
+  vertical-align: middle;
+}
+
+.place-details {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.place-info p {
+  margin-bottom: 0.5rem;
+}
+
+.submit {
+  background-color: orange;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+}
