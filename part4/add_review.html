@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review</title>
+    <link rel="stylesheet" href="styles.css">
+	<link rel="icon" href="images/icon.png" type="image/png">
+</head>
+<body>
+	<header>
+		<nav>
+			<a href="index.html"><img src="images/logo.png" alt="logo" class="logo"></a>
+            <a href="login.html" id="login-link" class="login-button">Login</a>
+        </nav>
+	</header>
+    <main>
+        <!-- Add something to idfentify the place you're reviewing -->
+        <form id="review-form">
+            <h2>Add a Review for <span id="place-name">Cozy Cabin</span></h2>
+			<input type="hidden" id="place-id" value="123">
+            <label for="review">Your Review:</label>
+            <textarea id="review" name="review" required></textarea>
+            <label for="rating">Rating:</label>
+            <select id="rating" name="rating" required>
+				<option value="" disabled selected>Choose a rating</option>
+                <option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+
+            </select>
+            <button type="submit" class="submit">Submit Review</button>
+        </form>
+    </main>
+	<hr>
+	<footer>
+		<p>© HBnB Evolution. All Rights Reserved.</p>
+	</footer>
+    <script src="scripts.js"></script>
+</body>
+</html>
