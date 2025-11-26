@@ -94,5 +94,3 @@ This project is provided for educational purposes.
 
 ---
 
-If you want, I can also add screenshots, credits, or a “Future Improvements” section.
-
